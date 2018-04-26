@@ -16,6 +16,8 @@ composer require zorn-v/xmpp
 
 ## DOCUMENTATION
 
+You can check `example.php` for auto reply bot example
+
 This library uses an object to hold options:
 
 ```php
