@@ -112,7 +112,6 @@ XML;
             $address = $this->getAddress();
             $this->log("Received buffer '$buffer' from '{$address}'", LogLevel::DEBUG);
             $this->getInputStream()->parse($buffer);
-            return $buffer;
         }
 
         try {
@@ -120,16 +119,15 @@ XML;
         } catch (TimeoutException $exception) {
             $this->reconnectTls($exception);
         }
+        return $buffer;
     }
 
     /**
      * Try to reconnect via TLS.
      *
-     * @param TimeoutException $exception
      * @return null
-     * @throws TimeoutException
      */
-    private function reconnectTls(TimeoutException $exception)
+    private function reconnectTls()
     {
         // check if we didn't receive any data
         // if not we re-try to connect via TLS
@@ -148,8 +146,6 @@ XML;
                 return;
             }
         }
-
-        throw $exception;
     }
 
     /**
