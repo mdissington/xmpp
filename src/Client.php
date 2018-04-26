@@ -44,6 +44,7 @@ use Fabiang\Xmpp\Event\EventManagerAwareInterface;
 use Fabiang\Xmpp\Event\EventManagerInterface;
 use Fabiang\Xmpp\Event\EventManager;
 use Fabiang\Xmpp\EventListener\Logger;
+use Fabiang\Xmpp\Exception\TimeoutException;
 
 /**
  * Xmpp connection client.
@@ -181,5 +182,37 @@ class Client implements EventManagerAwareInterface
     public function getConnection()
     {
         return $this->connection;
+    }
+
+    /**
+     * @return array
+     */
+    public function getMessages()
+    {
+        $result = [];
+        $connection = $this->getConnection();
+        $connection->getSocket()->setBlocking(false);
+        $input = null;
+        try {
+            $input = $connection->receive();
+        } catch (TimeoutException $e) {}
+        $node = $connection->getInputStream()->parse($input);
+        $messages = $node->getElementsByTagName('message');
+        foreach ($messages as $message) {
+            if (in_array($message->getAttribute('type'), ['chat', 'groupchat'])) {
+                $from = $message->getAttribute('from');
+                $body = $message->getElementsByTagName('body');
+                if (isset($body[0]->textContent)) {
+                    $body = $body[0]->textContent;
+                } else {
+                    $body = $message->textContent;
+                }
+                $result[] = [
+                    'from' => $from,
+                    'message' => $body,
+                ];
+            }
+        }
+        return $result;
     }
 }

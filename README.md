@@ -66,6 +66,24 @@ $client = new Client($options);
 $client->connect();
 ```
 
+You can use `getMessages()` for get all incoming messages
+
+```php
+print_r($client->getMessages());
+```
+
+```
+Array
+(
+    [0] => Array
+        (
+            [from] => user@myjabber.com/resource
+            [message] => Message text
+        )
+
+)
+```
+
 For sending data you just need to pass a object that implements `Fabiang\Xmpp\Protocol\ProtocolImplementationInterface`:
 
 ```php
