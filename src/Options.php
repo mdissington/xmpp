@@ -132,6 +132,13 @@ class Options
     protected $socksProxyAddress;
 
     /**
+     * Auto approve subscriptions
+     *
+     * @var boolean
+     */
+    protected $autoSubscribe;
+
+    /**
      * Authentication methods.
      *
      * @var array
@@ -512,6 +519,28 @@ class Options
     public function setSocksProxyAddress($socksProxyAddress)
     {
         $this->socksProxyAddress = $socksProxyAddress;
+        return $this;
+    }
+
+    /**
+     * Get auto approve subscriptions
+     *
+     * @return boolean
+     */
+    public function getAutoSubscribe()
+    {
+        return $this->autoSubscribe;
+    }
+
+    /**
+     * Set auto approve subscriptions
+     *
+     * @param boolean $autoSubscribe
+     * @return \Fabiang\Xmpp\Options
+     */
+    public function setAutoSubscribe($autoSubscribe)
+    {
+        $this->autoSubscribe = $autoSubscribe;
         return $this;
     }
 }

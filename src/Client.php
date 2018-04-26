@@ -41,6 +41,7 @@ use Fabiang\Xmpp\Connection\ConnectionInterface;
 use Fabiang\Xmpp\Connection\Socket;
 use Fabiang\Xmpp\Protocol\ProtocolImplementationInterface;
 use Fabiang\Xmpp\Protocol\Message;
+use Fabiang\Xmpp\Protocol\Presence;
 use Fabiang\Xmpp\Event\EventManagerAwareInterface;
 use Fabiang\Xmpp\Event\EventManagerInterface;
 use Fabiang\Xmpp\Event\EventManager;
@@ -115,7 +116,11 @@ class Client implements EventManagerAwareInterface
         $this->connection->setEventManager($this->eventManager);
         $this->connection->setOptions($this->options);
 
-        $this->connection->getInputStream()->getEventManager()->attach('{jabber:client}message', [$this, 'processMessage']);
+        $inputEventManager = $this->connection->getInputStream()->getEventManager();
+        $inputEventManager->attach('{jabber:client}message', [$this, 'processMessage']);
+        if ($this->options->getAutoSubscribe()) {
+            $inputEventManager->attach('{jabber:client}presence', [$this, 'processAutoSubscribe']);
+        }
 
         $implementation = $this->options->getImplementation();
         $implementation->setEventManager($this->eventManager);
@@ -190,6 +195,19 @@ class Client implements EventManagerAwareInterface
     public function getConnection()
     {
         return $this->connection;
+    }
+
+    /**
+     * @internal
+     */
+    public function processAutoSubscribe(XMLEventInterface $event)
+    {
+        if ($event->isStartTag()) {
+            $presenceNode = $event->getParameter(0);
+            if ($presenceNode->getAttribute('type') === Presence::TYPE_SUBSCRIBE) {
+                $this->send(new Presence(1, $presenceNode->getAttribute('from'), Presence::TYPE_SUBSCRIBED));
+            }
+        }
     }
 
     /**
