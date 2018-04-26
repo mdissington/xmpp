@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 0.8.0 (2018-04-26)
+
+- [MAJOR]: Added SOCKS proxy support
+- [MAJOR]: Implemented `getMessages` in `Client`
+- [MAJOR]: Added auto approve subscribe option
+- [MINOR]: Updated `example.php` to auto response bot
+
 ## 0.7.0 (2017-05-23)
 
 - [MAJOR]: [PR #46](https://github.com/fabiang/xmpp/pull/46) Added support for password-protected chatrooms
