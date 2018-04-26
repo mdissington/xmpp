@@ -234,12 +234,13 @@ class Client implements EventManagerAwareInterface
     }
 
     /**
+     * @param boolean $blocking
      * @return array
      */
-    public function getMessages()
+    public function getMessages($blocking = false)
     {
         $connection = $this->getConnection();
-        $connection->getSocket()->setBlocking(false);
+        $connection->getSocket()->setBlocking($blocking);
         $connection->receive();
         $result = $this->messages;
         $this->messages = [];

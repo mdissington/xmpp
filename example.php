@@ -37,11 +37,10 @@ $client->send(new Roster());
 $client->send(new Presence());
 
 while (true) {
-    $messages = $client->getMessages();
+    $messages = $client->getMessages(true);
     foreach ($messages as $msg) {
         $client->send(new Message($msg['message'], $msg['from']));
     }
-    sleep(1);
 }
 
 $client->disconnect();
