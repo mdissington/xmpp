@@ -42,7 +42,7 @@ or
 $options->setSocksProxyAddress('username:password@localhost:9050');
 ```
 
-You can also pass a PSR-2-compatible object to the options object:
+You can also pass a PSR-3 compatible object to the options object:
 
 ```php
 $options->setLogger($logger);
