@@ -126,11 +126,11 @@ class Presence implements ProtocolImplementationInterface
     protected $priority = 1;
 
     /**
-     * Nickname for presence.
+     * Type for presence.
      *
-     * @var string
+     * @var string|null
      */
-    protected $nickname;
+    protected $type;
 
     /**
      * Channel password.
@@ -144,11 +144,11 @@ class Presence implements ProtocolImplementationInterface
      *
      * @param integer $priority
      * @param string $to
-     * @param string $nickname
+     * @param string $type
      */
-    public function __construct($priority = 1, $to = null, $nickname = null)
+    public function __construct($priority = 1, $to = null, $type = null)
     {
-        $this->setPriority($priority)->setTo($to)->setNickname($nickname);
+        $this->setPriority($priority)->setTo($to)->setType($type);
     }
 
     /**
@@ -159,7 +159,10 @@ class Presence implements ProtocolImplementationInterface
         $presence = '<presence';
 
         if (null !== $this->getTo()) {
-            $presence .= ' to="' . XML::quote($this->getTo()) . '/' . XML::quote($this->getNickname()) . '"';
+            $presence .= ' to="' . XML::quote($this->getTo()) . '"';
+        }
+        if (null !== $this->getType()) {
+            $presence .= ' type="' . XML::quote($this->getType()) . '"';
         }
 
         $presence .= '><priority>' . $this->getPriority() . '</priority>';
@@ -173,25 +176,25 @@ class Presence implements ProtocolImplementationInterface
     }
 
     /**
-     * Get nickname.
+     * Get type.
      *
-     * @return string
+     * @return string|null
      */
-    public function getNickname()
+    public function getType()
     {
-        return $this->nickname;
+        return $this->type;
     }
 
     /**
-     * Set nickname.
+     * Set type.
      *
-     * @param string $nickname
+     * @param string|null $type
      * @return $this
      */
-    public function setNickname($nickname)
+    public function setType($type = null)
     {
-        $this->nickname = (string) $nickname;
-        return $this;
+        $this->type = $type;
+        return $type;
     }
 
     /**
