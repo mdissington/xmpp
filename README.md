@@ -1,28 +1,17 @@
-# fabiang/xmpp
-
 Library for XMPP protocol connections (Jabber) for PHP.
-
-[![License](https://poser.pugx.org/fabiang/xmpp/license.svg)](https://packagist.org/packages/fabiang/xmpp)
-[![Latest Stable Version](https://poser.pugx.org/fabiang/xmpp/v/stable.svg)](https://packagist.org/packages/fabiang/xmpp)
-[![Total Downloads](https://poser.pugx.org/fabiang/xmpp/downloads.svg)](https://packagist.org/packages/fabiang/xmpp)
-[![Dependency Status](https://gemnasium.com/fabiang/xmpp.svg)](https://gemnasium.com/fabiang/xmpp)
-[![Build Status](https://travis-ci.org/fabiang/xmpp.png?branch=master)](https://travis-ci.org/fabiang/xmpp)
-[![Coverage Status](https://img.shields.io/coveralls/fabiang/xmpp.svg)](https://coveralls.io/r/fabiang/xmpp?branch=master)
-[![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/fabiang/xmpp/badges/quality-score.png?s=2605ad2bc987ff8501b8f749addff43ec1ac7098)](https://scrutinizer-ci.com/g/fabiang/xmpp/)
-[![SensioLabsInsight](https://insight.sensiolabs.com/projects/a535cd82-788d-4506-803e-02ede44a9e74/mini.png)](https://insight.sensiolabs.com/projects/a535cd82-788d-4506-803e-02ede44a9e74)
 
 ## SYSTEM REQUIREMENTS
 
-- PHP minimum 5.6 or minimum 7.0
+- PHP >= 5.6
 - psr/log
 - (optional) psr/log-implementation - like monolog/monolog for logging
 
 ## INSTALLATION
 
-New to Composer? Read the [introduction](https://getcomposer.org/doc/00-intro.md#introduction). Add the following to your composer file:
+Install [Composer](https://getcomposer.org/download/) and then
 
 ```bash
-composer require fabiang/xmpp
+composer require zorn-v/xmpp
 ```
 
 ## DOCUMENTATION
