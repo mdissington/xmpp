@@ -95,9 +95,8 @@ $client->send($message);
 
 // join a channel
 $channel = new Presence;
-$channel->setTo('channelname@conference.myjabber.com')
-    ->setPassword('channelpassword')
-    ->setNickName('mynick');
+$channel->setTo('channelname@conference.myjabber.com/nickname')
+    ->setPassword('channelpassword');
 $client->send($channel);
 
 // send a message to the above channel
