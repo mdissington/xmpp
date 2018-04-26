@@ -40,9 +40,11 @@ use Fabiang\Xmpp\Options;
 use Fabiang\Xmpp\Connection\ConnectionInterface;
 use Fabiang\Xmpp\Connection\Socket;
 use Fabiang\Xmpp\Protocol\ProtocolImplementationInterface;
+use Fabiang\Xmpp\Protocol\Message;
 use Fabiang\Xmpp\Event\EventManagerAwareInterface;
 use Fabiang\Xmpp\Event\EventManagerInterface;
 use Fabiang\Xmpp\Event\EventManager;
+use Fabiang\Xmpp\Event\XMLEventInterface;
 use Fabiang\Xmpp\EventListener\Logger;
 
 /**
@@ -71,6 +73,11 @@ class Client implements EventManagerAwareInterface
      * @var ConnectionInterface
      */
     protected $connection;
+
+    /**
+     * @var array
+     */
+    protected $messages = [];
 
     /**
      * Constructor.
@@ -107,6 +114,8 @@ class Client implements EventManagerAwareInterface
     {
         $this->connection->setEventManager($this->eventManager);
         $this->connection->setOptions($this->options);
+
+        $this->connection->getInputStream()->getEventManager()->attach('{jabber:client}message', [$this, 'processMessage']);
 
         $implementation = $this->options->getImplementation();
         $implementation->setEventManager($this->eventManager);
@@ -184,31 +193,38 @@ class Client implements EventManagerAwareInterface
     }
 
     /**
-     * @return array
+     * @internal
      */
-    public function getMessages()
+    public function processMessage(XMLEventInterface $event)
     {
-        $result = [];
-        $connection = $this->getConnection();
-        $connection->getSocket()->setBlocking(false);
-        $input = $connection->receive();
-        $node = $connection->getInputStream()->parse($input);
-        $messages = $node->getElementsByTagName('message');
-        foreach ($messages as $message) {
-            if (in_array($message->getAttribute('type'), ['chat', 'groupchat'])) {
-                $from = $message->getAttribute('from');
-                $body = $message->getElementsByTagName('body');
-                if (isset($body[0]->textContent)) {
-                    $body = $body[0]->textContent;
+        if ($event->isStartTag()) {
+            $msgNode = $event->getParameter(0);
+            if (in_array($msgNode->getAttribute('type'), [Message::TYPE_CHAT, Message::TYPE_GROUPCHAT])) {
+                $from = $msgNode->getAttribute('from');
+                $bodyNodes = $msgNode->getElementsByTagName('body');
+                if (isset($bodyNodes[0]->textContent)) {
+                    $body = $bodyNodes[0]->textContent;
                 } else {
-                    $body = $message->textContent;
+                    $body = $msgNode->textContent;
                 }
-                $result[] = [
+                $this->messages[] = [
                     'from' => $from,
                     'message' => $body,
                 ];
             }
         }
+    }
+
+    /**
+     * @return array
+     */
+    public function getMessages()
+    {
+        $connection = $this->getConnection();
+        $connection->getSocket()->setBlocking(false);
+        $connection->receive();
+        $result = $this->messages;
+        $this->messages = [];
         return $result;
     }
 }
