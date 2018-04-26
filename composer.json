@@ -1,14 +1,18 @@
 {
-    "name": "fabiang/xmpp",
+    "name": "zorn-v/xmpp",
     "description": "Library for XMPP protocol (Jabber) connections",
     "license": "BSD-2-Clause",
-    "homepage": "https://github.com/fabiang/xmpp",
+    "homepage": "https://github.com/zorn-v/xmpp",
     "keywords": ["jabber", "xmpp"],
     "authors": [
         {
             "name": "Fabian Grutschus",
             "email": "f.grutschus@lubyte.de",
             "homepage": "http://www.lubyte.de/",
+            "role": "developer"
+        },
+        {
+            "name": "zorn-v",
             "role": "developer"
         }
     ],
