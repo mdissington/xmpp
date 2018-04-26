@@ -26,13 +26,22 @@ $password = 'test';
 $options = new Options($address);
 $options->setLogger($logger)
     ->setUsername($username)
-    ->setPassword($password);
+    ->setPassword($password)
+    ->setAutoSubscribe(true)
+;
 
 $client = new Client($options);
 
 $client->connect();
-$client->send(new Roster);
-$client->send(new Presence);
-$client->send(new Message);
+$client->send(new Roster());
+$client->send(new Presence());
+
+while (true) {
+    $messages = $client->getMessages();
+    foreach ($messages as $msg) {
+        $client->send(new Message($msg['message'], $msg['from']));
+    }
+    sleep(1);
+}
 
 $client->disconnect();
