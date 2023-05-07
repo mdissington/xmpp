@@ -54,7 +54,7 @@ class XMLParserException extends RuntimeException
      */
     public static function create($parser)
     {
-        if (!is_resource($parser) || 'xml' !== get_resource_type($parser)) {
+        if (!($parser instanceof \XMLParser) || !is_resource($parser) || 'xml' !== get_resource_type($parser)) {
             $message = 'Argument #1 of "' . __CLASS__ . '::'
                 . __METHOD__ . '" must be a resource returned by "xml_parser_create"';
             throw new InvalidArgumentException($message);
