@@ -19,7 +19,13 @@ class SocksProxy extends SocketClient
     {
         $contextOptions = $options->getContextOptions();
         $contextOptions['ssl']['verify_peer_name'] = false;
-        $addr = explode('@', ltrim($options->getSocksProxyAddress(), 'tcp://'));
+        $trimPrefix = function ($str, $prefix) {
+            if (substr($str, 0, strlen($prefix)) === $prefix) {
+                $str = substr($str, strlen($prefix));
+            }
+            return $str;
+        };
+        $addr = explode('@', $trimPrefix($options->getSocksProxyAddress(), 'tcp://'));
         if (count($addr) > 1) {
             $socksAddr = $addr[1];
             list($this->username, $this->password) = explode(':', $addr[0]);
@@ -27,7 +33,7 @@ class SocksProxy extends SocketClient
             $socksAddr = $addr[0];
         }
         parent::__construct($socksAddr, $contextOptions);
-        $this->realAddress = ltrim($options->getAddress(), 'tcp://');
+        $this->realAddress = $trimPrefix($options->getAddress(), 'tcp://');
     }
 
     public function connect($timeout = 30, $persistent = false)
