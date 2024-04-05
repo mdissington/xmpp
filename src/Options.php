@@ -85,7 +85,7 @@ class Options
      *
      * @var string
      */
-    protected $username;
+    protected $username = '';
 
     /**
      *
@@ -298,7 +298,7 @@ class Options
      */
     public function getUsername()
     {
-        return $this->username;
+        return explode('/', $this->username)[0];
     }
 
     /**
@@ -320,8 +320,7 @@ class Options
      */
     public function getResource()
     {
-        $username = $this->getUsername();
-        $username = explode('/', $username);
+        $username = explode('/', $this->username);
         return isset($username[1]) ? $username[1] : '';
     }
 
