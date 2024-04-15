@@ -104,7 +104,7 @@ class XMLStream implements EventManagerAwareInterface
     /**
      * XML parser.
      *
-     * @var resource
+     * @var resource|\XMLParser
      */
     protected $parser;
 

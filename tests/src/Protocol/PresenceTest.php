@@ -80,7 +80,7 @@ class PresenceTest extends TestCase
     public function testToString()
     {
         $this->assertSame('<presence><priority>1</priority></presence>', $this->object->toString());
-        $this->object->setTo('foobar')->setNickname('phpunit');
+        $this->object->setTo('foobar/phpunit');
         $this->assertSame('<presence to="foobar/phpunit"><priority>1</priority></presence>', $this->object->toString());
     }
 
@@ -101,7 +101,7 @@ class PresenceTest extends TestCase
         $object = new Presence('2', 'foo', 3);
         $this->assertSame('foo', $object->getTo());
         $this->assertSame(2, $object->getPriority());
-        $this->assertSame('3', $object->getNickname());
+        $this->assertSame('3', $object->getType());
     }
 
     /**
@@ -120,7 +120,7 @@ class PresenceTest extends TestCase
     {
         $this->assertSame('foobar', $this->object->setTo('foobar')->getTo());
         $this->assertSame(2, $this->object->setPriority('2')->getPriority());
-        $this->assertSame('3', $this->object->setNickname(3)->getNickname());
+        $this->assertSame('3', $this->object->setType(3)->getType());
     }
 
 }
