@@ -374,4 +374,9 @@ XML;
         $this->assertInstanceOf('DOMDocument', $this->object->parse('<'));
         $this->assertInstanceOf('DOMDocument', $this->object->parse('features xmlns="test"></features>'));
     }
+
+    public function testAttributeWithAmp()
+    {
+        $this->assertInstanceOf('DOMDocument', $this->object->parse('<x attr="with&amp;in-val" xmlns="test" />'));
+    }
 }

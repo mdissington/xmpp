@@ -220,7 +220,7 @@ class XMLStream implements EventManagerAwareInterface
             $prefix      = $elementData[0];
         }
 
-        $attributesNodes = $this->createAttributeNodes($attribs);
+        $attributes = $this->filterNsAttributes($attribs);
         $namespaceAttrib = false;
 
         // current namespace
@@ -252,8 +252,8 @@ class XMLStream implements EventManagerAwareInterface
             $element = $this->document->createElementNS($namespaceElement, $elementNameFull);
         }
 
-        foreach ($attributesNodes as $attributeNode) {
-            $element->setAttributeNode($attributeNode);
+        foreach ($attributes as $name => $value) {
+            $element->setAttribute($name, $value);
         }
 
         $this->elements[$this->depth] = $element;
@@ -264,14 +264,14 @@ class XMLStream implements EventManagerAwareInterface
     }
 
     /**
-     * Turn attribes into attribute nodes.
+     * Filter namespaced attributes
      *
      * @param array $attribs Attributes
      * @return array
      */
-    protected function createAttributeNodes(array $attribs)
+    protected function filterNsAttributes(array $attribs)
     {
-        $attributesNodes = [];
+        $result = [];
         foreach ($attribs as $name => $value) {
             // collect namespace prefixes
             if ('xmlns:' === substr($name, 0, 6)) {
@@ -279,12 +279,10 @@ class XMLStream implements EventManagerAwareInterface
 
                 $this->namespacePrefixes[$prefix] = $value;
             } else {
-                $attribute         = $this->document->createAttribute($name);
-                $attribute->value  = $value;
-                $attributesNodes[] = $attribute;
+                $result[$name] = $value;
             }
         }
-        return $attributesNodes;
+        return $result;
     }
 
     /**
