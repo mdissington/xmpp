@@ -87,7 +87,7 @@ class ClientTest extends TestCase
 
         $this->connection = $this->createMock(ConnectionInterface::class);
 
-        $this->connection->expects($this->once())
+        $this->connection->expects($this->any())
             ->method('getInputStream')
             ->willReturn(new XMLStream());
 

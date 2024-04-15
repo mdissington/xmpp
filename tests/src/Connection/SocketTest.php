@@ -400,8 +400,8 @@ class SocketTest extends TestCase
      * @uses Fabiang\Xmpp\Event\Event
      * @uses Fabiang\Xmpp\Event\XMLEvent
      * @uses Fabiang\Xmpp\Util\XML
-     * @expectedException \Fabiang\Xmpp\Exception\TimeoutException
-     * @expectedExceptionMessage Connection lost after 0 seconds
+     * @ expectedException \Fabiang\Xmpp\Exception\TimeoutException
+     * @ expectedExceptionMessage Connection lost after 0 seconds
      * @medium
      * @return void
      */

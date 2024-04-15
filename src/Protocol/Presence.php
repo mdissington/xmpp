@@ -193,7 +193,7 @@ class Presence implements ProtocolImplementationInterface
      */
     public function setType($type = null)
     {
-        $this->type = $type;
+        $this->type = $type ? (string)$type : $type;
         return $this;
     }
 
