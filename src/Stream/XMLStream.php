@@ -125,7 +125,7 @@ class XMLStream implements EventManagerAwareInterface
     /**
      * Constructor.
      */
-    public function __construct($encoding = 'UTF-8', XMLEventInterface $eventObject = null)
+    public function __construct($encoding = 'UTF-8', ?XMLEventInterface $eventObject = null)
     {
         $this->encoding = $encoding;
         $this->reset();
@@ -369,13 +369,12 @@ class XMLStream implements EventManagerAwareInterface
     public function reset()
     {
         $parser = xml_parser_create($this->encoding);
-        xml_set_object($parser, $this);
 
         xml_parser_set_option($parser, XML_OPTION_CASE_FOLDING, 0);
         xml_parser_set_option($parser, XML_OPTION_SKIP_WHITE, 1);
 
-        xml_set_element_handler($parser, 'startXml', 'endXml');
-        xml_set_character_data_handler($parser, 'dataXml');
+        xml_set_element_handler($parser, [$this, 'startXml'], [$this, 'endXml']);
+        xml_set_character_data_handler($parser, [$this, 'dataXml']);
 
         $this->parser            = $parser;
         $this->depth             = 0;

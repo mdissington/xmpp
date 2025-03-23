@@ -59,7 +59,7 @@ class XML
             $flags |= ENT_XML1;
         }
 
-        return htmlspecialchars($string, $flags, $encoding);
+        return htmlspecialchars($string ?: '', $flags, $encoding);
     }
 
     /**

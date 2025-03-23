@@ -66,10 +66,8 @@ class EventManager implements EventManagerInterface
 
     /**
      * Constructor sets default event object.
-     *
-     * @param EventInterface $eventObject Event object
      */
-    public function __construct(EventInterface $eventObject = null)
+    public function __construct(?EventInterface $eventObject = null)
     {
         if (null === $eventObject) {
             $eventObject = new Event;

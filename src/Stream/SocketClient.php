@@ -100,7 +100,7 @@ class SocketClient
 
         // call stream_socket_client with custom error handler enabled
         $handler = new ErrorHandler(
-            function ($address, $timeout, $flags, array $options = null) {
+            function ($address, $timeout, $flags, ?array $options = null) {
                 $errno  = null;
                 $errstr = null;
 
