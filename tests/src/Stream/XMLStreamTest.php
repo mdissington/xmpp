@@ -278,11 +278,11 @@ XML;
      * @uses Fabiang\Xmpp\Stream\XmlStream::__construct
      * @uses Fabiang\Xmpp\Stream\XmlStream::clearDocument
      * @uses Fabiang\Xmpp\Stream\XmlStream::reset
-     * @expectedException Fabiang\Xmpp\Exception\XMLParserException
      * @return void
      */
     public function testParseInvalidXML()
     {
+        $this->expectException(\Fabiang\Xmpp\Exception\XMLParserException::class);
         $this->object->parse('<tsst<>');
     }
 

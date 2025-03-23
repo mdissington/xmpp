@@ -46,7 +46,7 @@ class XMLParserExceptionTest extends TestCase
 
     /**
      * Test creation of exception.
-     * 
+     *
      * @covers Fabiang\Xmpp\Exception\XMLParserException::create
      * @return void
      */
@@ -54,32 +54,32 @@ class XMLParserExceptionTest extends TestCase
     {
         $parser = xml_parser_create();
         $this->assertSame(0, xml_parse($parser, "<?xml version=\"1.0\" ?>\n<xml>\n<test<></xml>"));
-        
+
         $exception = XMLParserException::create($parser);
         $this->assertSame('XML parsing error: "> required" at Line 3 at column 6', $exception->getMessage());
     }
-    
+
     /**
      * Test if no resource instance is given.
-     * 
+     *
      * @covers Fabiang\Xmpp\Exception\XMLParserException::create
-     * @expectedException Fabiang\Xmpp\Exception\InvalidArgumentException
      * @return void
      */
     public function testCreateNoResourceInstance()
     {
+        $this->expectException(\Fabiang\Xmpp\Exception\InvalidArgumentException::class);
         XMLParserException::create('test');
     }
-    
+
     /**
      * Test if resource is no xml parser instance.
-     * 
+     *
      * @covers Fabiang\Xmpp\Exception\XMLParserException::create
-     * @expectedException Fabiang\Xmpp\Exception\InvalidArgumentException
      * @return void
      */
     public function testCreateNoXMLResourceInstance()
     {
+        $this->expectException(\Fabiang\Xmpp\Exception\InvalidArgumentException::class);
         $handle = fopen('php://memory', 'r');
         try {
             XMLParserException::create($handle);

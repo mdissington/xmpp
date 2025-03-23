@@ -136,11 +136,11 @@ class EventTest extends TestCase
      *
      * @covers ::getParameter
      * @uses Fabiang\Xmpp\Event\Event::getParameters
-     * @expectedException \Fabiang\Xmpp\Exception\OutOfRangeException
      * @return void
      */
     public function testGetParameterNotSet()
     {
+        $this->expectException(\Fabiang\Xmpp\Exception\OutOfRangeException::class);
         $this->object->getParameter(0);
     }
 
@@ -149,11 +149,11 @@ class EventTest extends TestCase
      *
      * @covers ::getParameter
      * @uses Fabiang\Xmpp\Event\Event::getParameters
-     * @expectedException \Fabiang\Xmpp\Exception\InvalidArgumentException
      * @return void
      */
     public function testGetParameterIbvalidType()
     {
+        $this->expectException(\Fabiang\Xmpp\Exception\InvalidArgumentException::class);
         $this->object->getParameter('test');
     }
 

@@ -111,11 +111,11 @@ class EventManagerTest extends TestCase
      * @covers ::attach
      * @uses Fabiang\Xmpp\Event\EventManager::__construct
      * @uses Fabiang\Xmpp\Event\EventManager::setEventObject
-     * @expectedException \Fabiang\Xmpp\Exception\InvalidArgumentException
      * @return void
      */
     public function testAttachInvalidCallback()
     {
+        $this->expectException(\Fabiang\Xmpp\Exception\InvalidArgumentException::class);
         $this->object->attach('foo', array());
     }
 

@@ -104,11 +104,11 @@ class ErrorHandlerTest extends TestCase
 
     /**
      * @covers ::__construct
-     * @expectedException \Fabiang\Xmpp\Exception\InvalidArgumentException
-     * @expectedExceptionMessage Argument 1 of "Fabiang\Xmpp\Util\ErrorHandler::__construct" must be a callable
      */
     public function testConstructWithWrongType()
     {
+        $this->expectException(\Fabiang\Xmpp\Exception\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Argument 1 of "Fabiang\Xmpp\Util\ErrorHandler::__construct" must be a callable');
         new ErrorHandler(1);
     }
 }
