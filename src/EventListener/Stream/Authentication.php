@@ -136,7 +136,7 @@ class Authentication extends AbstractEventListener implements BlockingEventListe
         }
 
         if (null === $authenticationClass) {
-            throw new RuntimeException('No supportet authentication machanism found.');
+            throw new RuntimeException('No supported authentication machanism found.');
         }
 
         $authentication = new $authenticationClass;

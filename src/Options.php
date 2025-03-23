@@ -144,6 +144,9 @@ class Options
      * @var array
      */
     protected $authenticationClasses = [
+        'scram-sha-512' => '\\Fabiang\\Xmpp\\EventListener\\Stream\\Authentication\\ScramSha512',
+        'scram-sha-256' => '\\Fabiang\\Xmpp\\EventListener\\Stream\\Authentication\\ScramSha256',
+        'scram-sha-1' => '\\Fabiang\\Xmpp\\EventListener\\Stream\\Authentication\\ScramSha1',
         'digest-md5' => '\\Fabiang\\Xmpp\\EventListener\\Stream\\Authentication\\DigestMd5',
         'plain'      => '\\Fabiang\\Xmpp\\EventListener\\Stream\\Authentication\\Plain',
         'anonymous'  => '\\Fabiang\\Xmpp\\EventListener\\Stream\\Authentication\\Anonymous'

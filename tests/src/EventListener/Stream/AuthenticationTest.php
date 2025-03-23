@@ -188,7 +188,7 @@ class AuthenticationTest extends TestCase
     public function testAuthenticateWithoutMachanism()
     {
         $this->expectException(\Fabiang\Xmpp\Exception\RuntimeException::class);
-        $this->expectExceptionMessage('No supportet authentication machanism found.');
+        $this->expectExceptionMessage('No supported authentication machanism found.');
 
         $element = new \DOMElement('mechanisms');
         $event   = new XMLEvent;
