@@ -61,7 +61,7 @@ class RosterTest extends TestCase
      *
      * @return void
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->object     = new Roster;
         $this->connection = new Test;

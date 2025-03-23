@@ -81,7 +81,7 @@ class ClientTest extends TestCase
      *
      * @return void
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->options = $this->createMock(Options::class);
 

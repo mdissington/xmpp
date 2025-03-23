@@ -57,7 +57,7 @@ class PresenceTest extends TestCase
      *
      * @return void
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->object = new Presence;
     }

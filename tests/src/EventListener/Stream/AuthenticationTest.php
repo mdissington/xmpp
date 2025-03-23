@@ -67,7 +67,7 @@ class AuthenticationTest extends TestCase
      *
      * @return void
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->object = new Authentication;
         $this->connection = new Test;

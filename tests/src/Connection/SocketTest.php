@@ -64,7 +64,7 @@ class SocketTest extends TestCase
      *
      * @return void
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $mock = $this->getMockBuilder('\Fabiang\Xmpp\Stream\SocketClient')
             ->setConstructorArgs(array('tcp://localhost:9999'))

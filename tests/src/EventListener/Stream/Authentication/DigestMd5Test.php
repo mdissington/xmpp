@@ -67,7 +67,7 @@ class DigestMd5Test extends TestCase
      *
      * @return void
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->object = new DigestMd5;
         $this->connection = new Test;

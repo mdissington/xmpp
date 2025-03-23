@@ -27,7 +27,7 @@ class TestTest extends TestCase
      *
      * @return void
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $options = new Options;
         $options->setTo('test');

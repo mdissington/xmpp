@@ -57,7 +57,7 @@ class EventTest extends TestCase
      *
      * @return void
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->object = new Event;
     }

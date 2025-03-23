@@ -68,12 +68,12 @@ class LoggerTest extends TestCase
      *
      * @return void
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->object = new Logger;
 
         $logger        = new MonologLogger('xmpp');
-        $this->handler = new TestHandler('php://memory', MonologLogger::DEBUG);
+        $this->handler = new TestHandler(MonologLogger::DEBUG);
         $logger->pushHandler($this->handler);
 
         $options = new Options;
