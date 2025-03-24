@@ -36,11 +36,24 @@
 
 namespace Fabiang\Xmpp\Integration;
 
-use Behat\Behat\Context\BehatContext;
-use Behat\Behat\Exception\PendingException;
+use Behat\Behat\Context\Context;
+use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use PHPUnit\Framework\Assert;
 
-class RosterContext extends BehatContext
+class RosterContext implements Context
 {
+    private $mainContext;
+
+    /** @BeforeScenario */
+    public function before(BeforeScenarioScope $scope)
+    {
+        $this->mainContext = $scope->getEnvironment()->getContext(FeatureContext::class);
+    }
+
+    private function getMainContext()
+    {
+        return $this->mainContext;
+    }
 
     /**
      * @Given /^Test response data for roster request$/
@@ -78,13 +91,13 @@ class RosterContext extends BehatContext
     public function optionsObjectShouldContainRosterData()
     {
         $users = $this->getConnection()->getOptions()->getUsers();
-        assertCount(1, $users);
+        Assert::assertCount(1, $users);
         /* @var $user \Fabiang\Xmpp\Protocol\User\User */
         $user = $users[0];
-        assertSame('John Doe', $user->getName());
-        assertSame('john.doe@localhost', $user->getJid());
-        assertSame('both', $user->getSubscription());
-        assertSame(array('MyGroup', 'MyOtherGroup'), $user->getGroups());
+        Assert::assertSame('John Doe', $user->getName());
+        Assert::assertSame('john.doe@localhost', $user->getJid());
+        Assert::assertSame('both', $user->getSubscription());
+        Assert::assertSame(array('MyGroup', 'MyOtherGroup'), $user->getGroups());
     }
 
     /**

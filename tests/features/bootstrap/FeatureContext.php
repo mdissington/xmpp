@@ -36,19 +36,20 @@
 
 namespace Fabiang\Xmpp\Integration;
 
-use Behat\Behat\Context\BehatContext;
+use Behat\Behat\Context\Context;
 use Fabiang\Xmpp\Options;
 use Fabiang\Xmpp\Client;
 use Fabiang\Xmpp\Connection\Test;
 use Fabiang\Xmpp\Connection\Socket;
 use Fabiang\Xmpp\Stream\SocketClient;
+use PHPUnit\Framework\Assert;
 
 /**
  * Description of FeatureContext
  *
  * @author f.grutschus
  */
-class FeatureContext extends BehatContext
+class FeatureContext implements Context
 {
 
     /**
@@ -83,22 +84,6 @@ class FeatureContext extends BehatContext
      */
     public $exception;
 
-    /**
-     * Constructor.
-     *
-     * @param array $parameters
-     */
-    public function __construct(array $parameters)
-    {
-        /* @var $autoloader \Composer\Autoload\ClassLoader */
-        $autoloader = require realpath(__DIR__ . '/../../../vendor/autoload.php');
-        $autoloader->add(__NAMESPACE__, __DIR__);
-
-        $this->useContext('authentication', new AuthenticationContext);
-        $this->useContext('bind', new BindContext);
-        $this->useContext('session', new SessionContext);
-        $this->useContext('roster', new RosterContext);
-    }
 
     /**
      * @Given /^Test connection adapter$/
@@ -212,7 +197,7 @@ class FeatureContext extends BehatContext
      */
     public function shouldBeConnected()
     {
-        assertTrue($this->connection->isConnected());
+        Assert::assertTrue($this->connection->isConnected());
     }
 
     /**
@@ -223,7 +208,7 @@ class FeatureContext extends BehatContext
     {
         $expected = sprintf(Socket::STREAM_START, 'localhost');
         $counts   = array_count_values($this->connection->getBuffer());
-        assertEquals($num, $counts[$expected]);
+        Assert::assertEquals($num, $counts[$expected]);
     }
 
     /**
@@ -231,7 +216,7 @@ class FeatureContext extends BehatContext
      */
     public function timeoutExceptionShouldHaveThrown()
     {
-        assertInstanceOf('\\Fabiang\\Xmpp\\Exception\\TimeoutException', $this->exception);
+        Assert::assertInstanceOf('\\Fabiang\\Xmpp\\Exception\\TimeoutException', $this->exception);
     }
 
     /**
@@ -239,7 +224,7 @@ class FeatureContext extends BehatContext
      */
     public function socketExceptionShouldHaveBeenThrown()
     {
-        assertInstanceOf('\\Fabiang\\Xmpp\\Exception\\ErrorException', $this->exception);
+        Assert::assertInstanceOf('\\Fabiang\\Xmpp\\Exception\\ErrorException', $this->exception);
     }
 
     /**
@@ -255,7 +240,7 @@ class FeatureContext extends BehatContext
      */
     public function streamEndShouldBeSend()
     {
-        assertContains(Socket::STREAM_END, $this->connection->getBuffer());
+        Assert::assertContains(Socket::STREAM_END, $this->connection->getBuffer());
     }
 
     /**
@@ -263,7 +248,7 @@ class FeatureContext extends BehatContext
      */
     public function shouldBeDisconnected()
     {
-        assertFalse($this->connection->isConnected());
+        Assert::assertFalse($this->connection->isConnected());
     }
 
     /**
@@ -271,7 +256,7 @@ class FeatureContext extends BehatContext
      */
     public function starttlsShouldBeSend()
     {
-        assertContains('<starttls xmlns="urn:ietf:params:xml:ns:xmpp-tls"/>', $this->connection->getBuffer());
+        Assert::assertContains('<starttls xmlns="urn:ietf:params:xml:ns:xmpp-tls"/>', $this->connection->getBuffer());
     }
 
     /**
@@ -279,7 +264,7 @@ class FeatureContext extends BehatContext
      */
     public function streamEndReceived()
     {
-        assertContains('</stream:stream>', $this->connection->getData());
+        Assert::assertContains('</stream:stream>', $this->connection->getData());
     }
 
     /**

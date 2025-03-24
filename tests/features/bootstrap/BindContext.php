@@ -36,10 +36,24 @@
 
 namespace Fabiang\Xmpp\Integration;
 
-use Behat\Behat\Context\BehatContext;
+use Behat\Behat\Context\Context;
+use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use PHPUnit\Framework\Assert;
 
-class BindContext extends BehatContext
+class BindContext implements Context
 {
+    private $mainContext;
+
+    /** @BeforeScenario */
+    public function before(BeforeScenarioScope $scope)
+    {
+        $this->mainContext = $scope->getEnvironment()->getContext(FeatureContext::class);
+    }
+
+    private function getMainContext()
+    {
+        return $this->mainContext;
+    }
 
     /**
      * @Given /^Test response data for bind$/
@@ -61,7 +75,7 @@ class BindContext extends BehatContext
     public function requestForBindingSend()
     {
         $buffer = $this->getConnection()->getBuffer();
-        assertRegExp(
+        Assert::assertRegExp(
             '#^<iq type="set" id="fabiang_xmpp_[^"]+">'
             . '<bind xmlns="urn:ietf:params:xml:ns:xmpp-bind">'
             . '<resource></resource></bind></iq>$#',
@@ -74,7 +88,7 @@ class BindContext extends BehatContext
      */
     public function jidIsSetToOptionsObject()
     {
-        assertSame('test@jabber.unister.de/12345678890', $this->getConnection()->getOptions()->getJid());
+        Assert::assertSame('test@jabber.unister.de/12345678890', $this->getConnection()->getOptions()->getJid());
     }
 
     /**

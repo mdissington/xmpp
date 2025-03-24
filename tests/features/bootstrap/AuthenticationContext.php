@@ -36,12 +36,25 @@
 
 namespace Fabiang\Xmpp\Integration;
 
-use Behat\Behat\Context\BehatContext;
-use Behat\Behat\Exception\PendingException;
+use Behat\Behat\Context\Context;
+use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Fabiang\Xmpp\Util\XML;
+use PHPUnit\Framework\Assert;
 
-class AuthenticationContext extends BehatContext
+class AuthenticationContext implements Context
 {
+    private $mainContext;
+
+    /** @BeforeScenario */
+    public function before(BeforeScenarioScope $scope)
+    {
+        $this->mainContext = $scope->getEnvironment()->getContext(FeatureContext::class);
+    }
+
+    private function getMainContext()
+    {
+        return $this->mainContext;
+    }
 
     /**
      * @Given /^Test response data for plain$/
@@ -106,7 +119,7 @@ class AuthenticationContext extends BehatContext
      */
     public function plainAuthenticationElementShouldBeSend()
     {
-        assertContains(
+        Assert::assertContains(
             '<auth xmlns="urn:ietf:params:xml:ns:xmpp-sasl" mechanism="PLAIN">AGFhYQBiYmI=</auth>',
             $this->getConnection()->getBuffer()
         );
@@ -118,7 +131,7 @@ class AuthenticationContext extends BehatContext
     public function digestMdAuthenticationElementShouldBeSend()
     {
         $buffer = $this->getConnection()->getBuffer();
-        assertContains('<auth xmlns="urn:ietf:params:xml:ns:xmpp-sasl" mechanism="DIGEST-MD5"/>', $buffer[1]);
+        Assert::assertContains('<auth xmlns="urn:ietf:params:xml:ns:xmpp-sasl" mechanism="DIGEST-MD5"/>', $buffer[1]);
     }
 
 
@@ -127,7 +140,7 @@ class AuthenticationContext extends BehatContext
      */
     public function shouldBeAuthenticated()
     {
-        assertTrue($this->getConnection()->getOptions()->isAuthenticated());
+        Assert::assertTrue($this->getConnection()->getOptions()->isAuthenticated());
     }
 
     /**
@@ -137,8 +150,8 @@ class AuthenticationContext extends BehatContext
     {
         /* @var $exception \Exception */
         $exception = $this->getMainContext()->exception;
-        assertInstanceOf('\Fabiang\Xmpp\Exception\Stream\AuthenticationErrorException', $exception);
-        assertSame('Stream Error: "not-authorized"', $exception->getMessage());
+        Assert::assertInstanceOf('\Fabiang\Xmpp\Exception\Stream\AuthenticationErrorException', $exception);
+        Assert::assertSame('Stream Error: "not-authorized"', $exception->getMessage());
     }
 
     /**
@@ -147,7 +160,7 @@ class AuthenticationContext extends BehatContext
     public function digestMdResponseSend()
     {
         $buffer = $this->getConnection()->getBuffer();
-        assertRegExp('#^<response xmlns="urn:ietf:params:xml:ns:xmpp-sasl">[\w=]+</response>$#', $buffer[2]);
+        Assert::assertRegExp('#^<response xmlns="urn:ietf:params:xml:ns:xmpp-sasl">[\w=]+</response>$#', $buffer[2]);
     }
 
     /**
@@ -156,7 +169,7 @@ class AuthenticationContext extends BehatContext
     public function emptyDigestMdResponseSend()
     {
         $buffer = $this->getConnection()->getBuffer();
-        assertRegExp('<response xmlns="urn:ietf:params:xml:ns:xmpp-sasl"/>', $buffer[3]);
+        Assert::assertRegExp('<response xmlns="urn:ietf:params:xml:ns:xmpp-sasl"/>', $buffer[3]);
     }
 
     /**
