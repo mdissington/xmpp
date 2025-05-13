@@ -55,7 +55,7 @@ class XMLStreamTest extends TestCase
      * Sets up the fixture, for example, opens a network connection.
      * This method is called before a test is executed.
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->object = new XMLStream;
     }
@@ -278,11 +278,11 @@ XML;
      * @uses Fabiang\Xmpp\Stream\XmlStream::__construct
      * @uses Fabiang\Xmpp\Stream\XmlStream::clearDocument
      * @uses Fabiang\Xmpp\Stream\XmlStream::reset
-     * @expectedException Fabiang\Xmpp\Exception\XMLParserException
      * @return void
      */
     public function testParseInvalidXML()
     {
+        $this->expectException(\Fabiang\Xmpp\Exception\XMLParserException::class);
         $this->object->parse('<tsst<>');
     }
 

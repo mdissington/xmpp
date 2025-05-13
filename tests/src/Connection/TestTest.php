@@ -27,7 +27,7 @@ class TestTest extends TestCase
      *
      * @return void
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $options = new Options;
         $options->setTo('test');
@@ -138,13 +138,14 @@ class TestTest extends TestCase
     /**
      * Check timeout when not receiving input.
      *
-     * @expectedException \Fabiang\Xmpp\Exception\TimeoutException
-     * @expectedExceptionMessage Connection lost after 0 seconds
      * @medium
      * @return void
      */
     public function testReceiveWithTimeout()
     {
+        $this->expectException(\Fabiang\Xmpp\Exception\TimeoutException::class);
+        $this->expectExceptionMessage('Connection lost after 0 seconds');
+
         $this->object->getOptions()->setTimeout(0);
         $this->object->connect();
         $this->object->setData(array(

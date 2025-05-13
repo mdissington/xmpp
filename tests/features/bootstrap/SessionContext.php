@@ -36,12 +36,25 @@
 
 namespace Fabiang\Xmpp\Integration;
 
-use Behat\Behat\Context\BehatContext;
-use Behat\Behat\Exception\PendingException;
+use Behat\Behat\Context\Context;
+use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Fabiang\Xmpp\EventListener\Stream\Session;
+use PHPUnit\Framework\Assert;
 
-class SessionContext extends BehatContext
+class SessionContext implements Context
 {
+    private $mainContext;
+
+    /** @BeforeScenario */
+    public function before(BeforeScenarioScope $scope)
+    {
+        $this->mainContext = $scope->getEnvironment()->getContext(FeatureContext::class);
+    }
+
+    private function getMainContext()
+    {
+        return $this->mainContext;
+    }
 
     /**
      *
@@ -95,7 +108,7 @@ class SessionContext extends BehatContext
     public function requestForSessionSend()
     {
         $buffer = $this->getConnection()->getBuffer();
-        assertRegExp(
+        Assert::assertRegExp(
             '#^<iq type="set" id="fabiang_xmpp_[^"]+"><session xmlns="urn:ietf:params:xml:ns:xmpp-session"/></iq>$#',
             $buffer[1]
         );
@@ -106,7 +119,7 @@ class SessionContext extends BehatContext
      */
     public function sessionListenerIsNotBlocking()
     {
-        assertFalse($this->listener->isBlocking());
+        Assert::assertFalse($this->listener->isBlocking());
     }
 
     /**

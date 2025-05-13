@@ -70,13 +70,13 @@ class SocketClientTest extends TestCase
      * Sets up the fixture, for example, opens a network connection.
      * This method is called before a test is executed.
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->path    = sys_get_temp_dir() . '/phpunit_' . uniqid();
         //touch($this->path);
         $this->address = 'unix://' . $this->path;
         $this->server  = stream_socket_server($this->address);
-        $this->assertInternalType('resource', $this->server);
+        $this->assertIsResource($this->server);
 
         $this->object = new SocketClient($this->address);
     }
@@ -85,7 +85,7 @@ class SocketClientTest extends TestCase
      * Tears down the fixture, for example, closes a network connection.
      * This method is called after a test is executed.
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
         unlink($this->path);
         fclose($this->server);
@@ -101,7 +101,7 @@ class SocketClientTest extends TestCase
     {
         $this->object->connect(0);
         $stream = $this->object->getResource();
-        $this->assertInternalType('resource', $stream);
+        $this->assertIsResource($stream);
         $this->assertSame('stream', get_resource_type($stream));
     }
 
@@ -115,7 +115,7 @@ class SocketClientTest extends TestCase
     {
         $this->object->connect(0, true);
         $stream = $this->object->getResource();
-        $this->assertInternalType('resource', $stream);
+        $this->assertIsResource($stream);
         $this->assertSame('persistent stream', get_resource_type($stream));
     }
 
@@ -139,7 +139,7 @@ class SocketClientTest extends TestCase
         $this->path    = sys_get_temp_dir() . '/phpunit_' . uniqid();
         $this->address = 'unix://' . $this->path;
         $this->server  = stream_socket_server($this->address);
-        $this->assertInternalType('resource', $this->server);
+        $this->assertIsResource($this->server);
         $this->object->reconnect($this->address, 0, true);
         $this->assertSame('persistent stream', get_resource_type($this->object->getResource()));
         $this->assertSame($this->address, $this->object->getAddress());

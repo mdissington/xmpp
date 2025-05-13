@@ -56,12 +56,17 @@ class RosterTest extends TestCase
     protected $object;
 
     /**
+     * @var Test
+     */
+    protected $connection;
+
+    /**
      * Sets up the fixture, for example, opens a network connection.
      * This method is called before a test is executed.
      *
      * @return void
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->object     = new Roster;
         $this->connection = new Test;

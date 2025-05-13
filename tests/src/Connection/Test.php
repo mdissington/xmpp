@@ -115,7 +115,7 @@ class Test extends AbstractConnection
      * @param string|null $data
      * @return $this
      */
-    public function setData(array $data = null)
+    public function setData(?array $data = null)
     {
         $this->data = $data;
         return $this;

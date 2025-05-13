@@ -82,11 +82,8 @@ class Client implements EventManagerAwareInterface
 
     /**
      * Constructor.
-     *
-     * @param Options               $options      Client options
-     * @param EventManagerInterface $eventManager Event manager
      */
-    public function __construct(Options $options, EventManagerInterface $eventManager = null)
+    public function __construct(Options $options, ?EventManagerInterface $eventManager = null)
     {
         // create default connection
         if (null !== $options->getConnection()) {

@@ -22,6 +22,11 @@ $socksProxy = 'localhost:9050';
 $username = 'xmpp';
 $password = 'test';
 
+$initFile = __FILE__ . '.init.php';
+if (file_exists($initFile)) {
+    require $initFile;
+}
+
 $options = new Options($address);
 $options->setLogger($logger)
     ->setUsername($username)

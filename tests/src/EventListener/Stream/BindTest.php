@@ -66,7 +66,7 @@ class BindTest extends TestCase
      *
      * @return void
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->object     = new Bind;
         $this->connection = new Test;

@@ -67,7 +67,7 @@ class DigestMd5Test extends TestCase
      *
      * @return void
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->object = new DigestMd5;
         $this->connection = new Test;
@@ -252,12 +252,13 @@ class DigestMd5Test extends TestCase
      * @uses Fabiang\Xmpp\Event\Event
      * @uses Fabiang\Xmpp\Options
      * @uses Fabiang\Xmpp\Util\XML
-     * @expectedException Fabiang\Xmpp\Exception\Stream\AuthenticationErrorException
-     * @expectedExceptionMessage Error when receiving challenge: ""
      * @return void
      */
     public function testChallengeEmpty()
     {
+        $this->expectException(\Fabiang\Xmpp\Exception\Stream\AuthenticationErrorException::class);
+        $this->expectExceptionMessage('Error when receiving challenge: ""');
+
         $document = new \DOMDocument;
         $document->loadXML('<challenge xmlns="urn:ietf:params:xml:ns:xmpp-sasl"></challenge>');
 

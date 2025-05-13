@@ -51,17 +51,17 @@ class XMLEventTest extends TestCase
     /**
      * Sets up the fixture, for example, opens a network connection.
      * This method is called before a test is executed.
-     * 
+     *
      * @return void
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->object = new XMLEvent;
     }
 
     /**
      * Test setting and checking is start tag.
-     * 
+     *
      * @covers Fabiang\Xmpp\Event\XMLEvent::isStartTag
      * @covers Fabiang\Xmpp\Event\XMLEvent::setStartTag
      * @return void

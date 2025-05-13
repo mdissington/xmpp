@@ -67,7 +67,7 @@ class AuthenticationTest extends TestCase
      *
      * @return void
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->object = new Authentication;
         $this->connection = new Test;
@@ -183,12 +183,13 @@ class AuthenticationTest extends TestCase
      * @uses Fabiang\Xmpp\Options
      * @uses Fabiang\Xmpp\Event\Event
      * @uses Fabiang\Xmpp\Event\XMLEvent
-     * @expectedException \Fabiang\Xmpp\Exception\RuntimeException
-     * @expectedExceptionMessage No supportet authentication machanism found.
      * @return void
      */
     public function testAuthenticateWithoutMachanism()
     {
+        $this->expectException(\Fabiang\Xmpp\Exception\RuntimeException::class);
+        $this->expectExceptionMessage('No supported authentication machanism found.');
+
         $element = new \DOMElement('mechanisms');
         $event   = new XMLEvent;
         $event->setParameters(array($element));
@@ -208,11 +209,12 @@ class AuthenticationTest extends TestCase
      * @uses Fabiang\Xmpp\Options
      * @uses Fabiang\Xmpp\Event\Event
      * @uses Fabiang\Xmpp\Event\XMLEvent
-     * @expectedException \Fabiang\Xmpp\Exception\RuntimeException
      * @return void
      */
     public function testAuthenticateInvalidMechanismHandler()
     {
+        $this->expectException(\Fabiang\Xmpp\Exception\RuntimeException::class);
+
         $this->object->getOptions()->setAuthenticationClasses(array('plain' => '\stdClass'));
 
         $element = new \DOMElement('machanism', 'PLAIN');
@@ -239,11 +241,12 @@ class AuthenticationTest extends TestCase
      * @uses Fabiang\Xmpp\Event\Event
      * @uses Fabiang\Xmpp\Event\XMLEvent
      * @uses Fabiang\Xmpp\Exception\Stream\StreamErrorException
-     * @expectedException Fabiang\Xmpp\Exception\Stream\StreamErrorException
      * @return void
      */
     public function testFailure()
     {
+        $this->expectException(\Fabiang\Xmpp\Exception\Stream\StreamErrorException::class);
+
         $document = new \DOMDocument;
         $element = new \DOMElement('failure');
         $document->appendChild($element);

@@ -128,15 +128,15 @@ class Authentication extends AbstractEventListener implements BlockingEventListe
         $authenticationClass = null;
 
         $authenticationClasses = $this->getOptions()->getAuthenticationClasses();
-        foreach ($this->mechanisms as $mechanism) {
-            if (array_key_exists($mechanism, $authenticationClasses)) {
-                $authenticationClass = $authenticationClasses[$mechanism];
+        foreach ($authenticationClasses as $mechanism => $authClass) {
+            if (in_array($mechanism, $this->mechanisms)) {
+                $authenticationClass = $authClass;
                 break;
             }
         }
 
         if (null === $authenticationClass) {
-            throw new RuntimeException('No supportet authentication machanism found.');
+            throw new RuntimeException('No supported authentication machanism found.');
         }
 
         $authentication = new $authenticationClass;
