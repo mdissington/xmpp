@@ -1,9 +1,13 @@
 {
     "name": "zorn-v/xmpp",
     "description": "Library for XMPP protocol (Jabber) connections",
+    "type": "library",
     "license": "BSD-2-Clause",
-    "homepage": "https://github.com/zorn-v/xmpp",
-    "keywords": ["jabber", "xmpp"],
+    "homepage": "https://github.com/mdissington/xmpp",
+    "keywords": [
+        "jabber",
+        "xmpp"
+    ],
     "authors": [
         {
             "name": "Fabian Grutschus",
@@ -13,6 +17,11 @@
         },
         {
             "name": "zorn-v",
+            "role": "developer"
+        },
+        {
+            "name": "Martyn Dissington",
+            "homepage": "https://github.com/mdissington",
             "role": "developer"
         }
     ],
@@ -29,15 +38,18 @@
     },
     "require": {
         "php": "^8.3",
-        "psr/log": "^1.0 || ^2.0 || ^3.0"
+        "psr/log": "^2.0 || ^3.0"
     },
     "require-dev": {
         "behat/behat": "^3.15",
-        "monolog/monolog": "^2.10",
-        "phpunit/phpunit": "^5.7.20 || ^10.5.45 || ^11"
+        "monolog/monolog": "^3.9",
+        "phpstan/phpstan": "^2.1.11",
+        "phpstan/phpstan-strict-rules": "^2.0.4",
+        "phpunit/php-code-coverage": "^12.1",
+        "phpunit/phpunit": "^12"
     },
     "suggest": {
-        "psr/log-implementation": "Allows more advanced logging of the xmpp connection"
+        "psr/log-implementation": "Allows more advanced logging of the XMPP connection"
     },
     "config": {
         "platform": {

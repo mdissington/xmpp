@@ -67,8 +67,8 @@ class SocketTest extends TestCase
     protected function setUp(): void
     {
         $mock = $this->getMockBuilder('\Fabiang\Xmpp\Stream\SocketClient')
-            ->setConstructorArgs(array('tcp://localhost:9999'))
-            ->setMethods(array('read', 'write', 'connect', 'close', 'setBlocking'))
+            ->setConstructorArgs(array( 'tcp://localhost:9999' ))
+            ->onlyMethods([ 'read', 'write', 'connect', 'close', 'setBlocking' ])
             ->getMock();
 
         $this->object = new Socket($mock);
@@ -116,10 +116,12 @@ class SocketTest extends TestCase
     {
         $return = '<xml xmlns="test"></xml>';
         $mock   = $this->object->getSocket();
+
         $mock->expects($this->once())
             ->method('read')
             ->with($this->equalTo(4096))
-            ->will($this->returnValue($return));
+            ->willReturn($return);
+
         $this->assertSame($return, $this->object->receive());
     }
 
@@ -141,17 +143,22 @@ class SocketTest extends TestCase
      * @uses Fabiang\Xmpp\Event\EventManager
      * @return void
      */
-    public function testSend()
-    {
-        $data = '<xml xmlns="test"></xml>';
+    public function testSend() {
+        $data               = '<xml xmlns="test"></xml>';
+        $mock               = $this->object->getSocket();
+        $invocation_matcher = $this->exactly(2);
 
-        $mock = $this->object->getSocket();
-        $mock->expects($this->at(0))
-            ->method('write');
-
-        $mock->expects($this->at(3))
-            ->method('write')
-            ->with($this->equalTo($data));
+        $mock->expects($invocation_matcher)->method('write')
+            ->willReturnCallback(function ( $value ) use ( $invocation_matcher, $data ) {
+                switch ( $invocation_matcher->numberOfInvocations() ) {
+                    case 1:
+                        // not checking the first call's argument
+                        break;
+                    case 2:
+                        $this->assertEquals($data, $value);
+                        break;
+                }
+            });
 
         $this->object->send($data);
         $this->assertTrue($this->object->isConnected());

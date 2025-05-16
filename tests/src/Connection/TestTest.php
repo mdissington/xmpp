@@ -17,7 +17,7 @@ class TestTest extends TestCase
 {
 
     /**
-     * @var Test
+     * @var ConnectionTestDouble
      */
     protected $object;
 
@@ -31,7 +31,7 @@ class TestTest extends TestCase
     {
         $options = new Options;
         $options->setTo('test');
-        $this->object = new Test;
+        $this->object = new ConnectionTestDouble();
         $this->object->setOptions($options);
         $options->setConnection($this->object);
     }

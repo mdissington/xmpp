@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 /**
  * Copyright 2014 Fabian Grutschus. All rights reserved.
@@ -33,32 +34,42 @@
  * @link      http://github.com/fabiang/xmpp
  */
 -->
-
 <phpunit
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.3/phpunit.xsd"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/12.0/phpunit.xsd"
+    beStrictAboutCoverageMetadata="false"
+    beStrictAboutOutputDuringTests="true"
     colors="true"
-    convertErrorsToExceptions="true"
-    convertNoticesToExceptions="true"
-    convertWarningsToExceptions="true"
-    forceCoversAnnotation="true">
-
+    displayDetailsOnIncompleteTests="true"
+    displayDetailsOnPhpunitDeprecations="true"
+    displayDetailsOnSkippedTests="true"
+    displayDetailsOnTestsThatTriggerDeprecations="true"
+    displayDetailsOnTestsThatTriggerErrors="true"
+    displayDetailsOnTestsThatTriggerNotices="true"
+    displayDetailsOnTestsThatTriggerWarnings="true"
+    executionOrder="depends,defects"
+    failOnRisky="true"
+    failOnWarning="true"
+    requireCoverageMetadata="false"
+    testdox="true">
+    <!--
     <testsuites>
         <testsuite name="Xmpp">
             <directory>tests/src/</directory>
         </testsuite>
     </testsuites>
-
-    <filter>
-        <whitelist>
+    -->
+    <coverage includeUncoveredFiles="false">
+        <report>
+            <html outputDirectory="build/docs/code-coverage" lowUpperBound="50" highLowerBound="98"/>
+        </report>
+    </coverage>
+    <logging>
+        <testdoxHtml outputFile="build/docs/phpunit.html"/>
+    </logging>
+    <source>
+        <include>
             <directory>src/</directory>
-        </whitelist>
-    </filter>
-
-    <php>
-        <ini name="error_reporting" value="-1"/>
-        <ini name="display_errors" value="On"/>
-        <ini name="log_errors" value="Off"/>
-    </php>
-
+        </include>
+    </source>
 </phpunit>

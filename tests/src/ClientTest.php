@@ -260,8 +260,8 @@ class ClientTest extends TestCase
     {
         $options = new Options();
         $client = $this->getMockBuilder(Client::class)
-            ->setMethods(array('setupImplement'))
-            ->setConstructorArgs([$options])
+            ->onlyMethods([ 'setupImplementation' ])
+            ->setConstructorArgs([ $options ])
             ->getMock();
 
         $optionsAssert = $client->getOptions();

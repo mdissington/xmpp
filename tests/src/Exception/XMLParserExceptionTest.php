@@ -77,7 +77,7 @@ class XMLParserExceptionTest extends TestCase
      * @covers Fabiang\Xmpp\Exception\XMLParserException::create
      * @return void
      */
-    public function testCreateNoXMLResourceInstance()
+    public function testCreateNoXmlResourceInstance()
     {
         $this->expectException(\Fabiang\Xmpp\Exception\InvalidArgumentException::class);
         $handle = fopen('php://memory', 'r');

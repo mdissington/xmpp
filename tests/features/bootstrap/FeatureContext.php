@@ -39,7 +39,7 @@ namespace Fabiang\Xmpp\Integration;
 use Behat\Behat\Context\Context;
 use Fabiang\Xmpp\Options;
 use Fabiang\Xmpp\Client;
-use Fabiang\Xmpp\Connection\Test;
+use Fabiang\Xmpp\Connection\ConnectionTestDouble;
 use Fabiang\Xmpp\Connection\Socket;
 use Fabiang\Xmpp\Stream\SocketClient;
 use PHPUnit\Framework\Assert;
@@ -66,7 +66,7 @@ class FeatureContext implements Context
 
     /**
      *
-     * @var Test
+     * @var ConnectionTestDouble
      */
     protected $connection;
 
@@ -90,7 +90,7 @@ class FeatureContext implements Context
      */
     public function testConnectionAdapter()
     {
-        $this->connection = new Test;
+        $this->connection = new ConnectionTestDouble();
 
         $this->options = new Options;
         $this->options->setTo('localhost');

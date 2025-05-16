@@ -81,7 +81,7 @@ class XMLTest extends TestCase
      * @uses Fabiang\Xmpp\Util\XML::quote
      * @requires PHP 5.4
      */
-    public function testQuoteAsXML()
+    public function testQuoteAsXml()
     {
         $this->assertSame('&apos;', XML::quote("'"));
     }

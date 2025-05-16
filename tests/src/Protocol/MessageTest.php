@@ -81,7 +81,7 @@ class MessageTest extends TestCase
     public function testToString()
     {
         $this->object->setTo('foobar')->setMessage('testmessage');
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             '#<message type="chat" id="fabiang_xmpp_[^"]+" to="foobar"><body>testmessage</body></message>#',
             $this->object->toString()
         );

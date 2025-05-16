@@ -43,7 +43,7 @@ use Fabiang\Xmpp\Util\XML;
  *
  * @package Xmpp\Connection
  */
-class Test extends AbstractConnection
+class ConnectionTestDouble extends AbstractConnection
 {
 
     /**

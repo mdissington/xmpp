@@ -38,7 +38,7 @@ namespace Fabiang\Xmpp\EventListener\Stream\Authentication;
 
 use PHPUnit\Framework\TestCase;
 use Fabiang\Xmpp\Event\XMLEvent;
-use Fabiang\Xmpp\Connection\Test;
+use Fabiang\Xmpp\Connection\ConnectionTestDouble;
 use Fabiang\Xmpp\Options;
 use Fabiang\Xmpp\Util\XML;
 
@@ -57,7 +57,7 @@ class DigestMd5Test extends TestCase
 
     /**
      *
-     * @var Test
+     * @var ConnectionTestDouble
      */
     protected $connection;
 
@@ -70,7 +70,7 @@ class DigestMd5Test extends TestCase
     protected function setUp(): void
     {
         $this->object = new DigestMd5;
-        $this->connection = new Test;
+        $this->connection = new ConnectionTestDouble;
 
         $options = new Options;
         $options->setConnection($this->connection);
@@ -197,12 +197,12 @@ class DigestMd5Test extends TestCase
         $buffer = $this->connection->getBuffer();
         $this->assertCount(1, $buffer);
         $response = $buffer[0];
-        $this->assertRegExp('#^<response xmlns="urn:ietf:params:xml:ns:xmpp-sasl">.+</response>$#', $response);
+        $this->assertMatchesRegularExpression('#^<response xmlns="urn:ietf:params:xml:ns:xmpp-sasl">.+</response>$#', $response);
 
         $parser = new \DOMDocument;
         $parser->loadXML($response);
         $value = base64_decode($parser->documentElement->textContent);
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             '#^username="aaa",realm="localhost",nonce="abcdefghijklmnopqrstuvw",cnonce="[^"]+",nc=00000001,'
             . 'qop=auth,digest-uri="xmpp/localhost",response=[^,]+,charset=utf-8$#',
             $value

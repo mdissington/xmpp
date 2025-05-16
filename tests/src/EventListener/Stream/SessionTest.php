@@ -37,7 +37,7 @@
 namespace Fabiang\Xmpp\EventListener\Stream;
 
 use PHPUnit\Framework\TestCase;
-use Fabiang\Xmpp\Connection\Test;
+use Fabiang\Xmpp\Connection\ConnectionTestDouble;
 use Fabiang\Xmpp\Options;
 use Fabiang\Xmpp\Event\XMLEvent;
 
@@ -56,7 +56,7 @@ class SessionTest extends TestCase
 
     /**
      *
-     * @var Test
+     * @var ConnectionTestDouble
      */
     protected $connection;
 
@@ -70,7 +70,7 @@ class SessionTest extends TestCase
     {
         $this->object = new Session;
 
-        $this->connection = new Test;
+        $this->connection = new ConnectionTestDouble();
 
         $options = new Options;
         $options->setConnection($this->connection);
@@ -134,7 +134,7 @@ class SessionTest extends TestCase
 
         $this->assertTrue($this->object->isBlocking());
         $buffer = $this->connection->getbuffer();
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             '#<iq type="set" id="[^"]+"><session xmlns="urn:ietf:params:xml:ns:xmpp-session"/></iq>#',
             $buffer[1]
         );
@@ -198,7 +198,7 @@ class SessionTest extends TestCase
      */
     public function testSetAndGetId()
     {
-        $this->assertRegExp('#^fabiang_xmpp_.+$#', $this->object->getId());
+        $this->assertMatchesRegularExpression('#^fabiang_xmpp_.+$#', $this->object->getId());
         $id = 'test';
         $this->assertSame($id, $this->object->setId($id)->getId());
     }

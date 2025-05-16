@@ -38,7 +38,7 @@ namespace Fabiang\Xmpp\EventListener\Stream;
 
 use PHPUnit\Framework\TestCase;
 use Fabiang\Xmpp\Event\XMLEvent;
-use Fabiang\Xmpp\Connection\Test;
+use Fabiang\Xmpp\Connection\ConnectionTestDouble;
 use Fabiang\Xmpp\Event\EventManager;
 use Fabiang\Xmpp\Options;
 
@@ -57,7 +57,7 @@ class AuthenticationTest extends TestCase
 
     /**
      *
-     * @var Test
+     * @var ConnectionTestDouble
      */
     protected $connection;
 
@@ -70,7 +70,7 @@ class AuthenticationTest extends TestCase
     protected function setUp(): void
     {
         $this->object = new Authentication;
-        $this->connection = new Test;
+        $this->connection = new ConnectionTestDouble();
 
         $options = new Options;
         $options->setConnection($this->connection);
@@ -91,7 +91,7 @@ class AuthenticationTest extends TestCase
      */
     public function testAttachEvents()
     {
-        $connection = new Test();
+        $connection = new ConnectionTestDouble();
         $options = new Options;
         $options->setConnection($connection);
         $this->object->setOptions($options);
@@ -280,7 +280,7 @@ class AuthenticationTest extends TestCase
         $event   = new XMLEvent;
         $event->setParameters(array($element));
 
-        $connection = $this->createMock(Test::class);
+        $connection = $this->createMock(ConnectionTestDouble::class);
         $this->object->getOptions()->setConnection($connection);
 
         $connection->expects($this->once())

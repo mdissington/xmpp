@@ -37,7 +37,7 @@
 namespace Fabiang\Xmpp\EventListener\Stream;
 
 use PHPUnit\Framework\TestCase;
-use Fabiang\Xmpp\Connection\Test;
+use Fabiang\Xmpp\Connection\ConnectionTestDouble;
 use Fabiang\Xmpp\Options;
 use Fabiang\Xmpp\Event\XMLEvent;
 
@@ -56,7 +56,7 @@ class BindTest extends TestCase
 
     /**
      *
-     * @var Test
+     * @var ConnectionTestDouble
      */
     protected $connection;
 
@@ -69,7 +69,7 @@ class BindTest extends TestCase
     protected function setUp(): void
     {
         $this->object     = new Bind;
-        $this->connection = new Test;
+        $this->connection = new ConnectionTestDouble();
 
         $options = new Options;
         $options->setConnection($this->connection);
@@ -132,7 +132,7 @@ class BindTest extends TestCase
 
         $this->assertTrue($this->object->isBlocking());
         $buffer = $this->connection->getBuffer();
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             '#<iq type="set" id="[^"]+">'
             . '<bind xmlns="urn:ietf:params:xml:ns:xmpp-bind">'
             . '<resource>baz@test.com</resource></bind></iq>#',

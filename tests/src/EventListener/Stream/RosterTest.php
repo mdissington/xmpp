@@ -38,7 +38,7 @@ namespace Fabiang\Xmpp\EventListener\Stream;
 
 use PHPUnit\Framework\TestCase;
 use Fabiang\Xmpp\Event\XMLEvent;
-use Fabiang\Xmpp\Connection\Test;
+use Fabiang\Xmpp\Connection\ConnectionTestDouble;
 use Fabiang\Xmpp\Options;
 use Fabiang\Xmpp\Protocol\User\User;
 
@@ -56,7 +56,7 @@ class RosterTest extends TestCase
     protected $object;
 
     /**
-     * @var Test
+     * @var ConnectionTestDouble
      */
     protected $connection;
 
@@ -69,7 +69,7 @@ class RosterTest extends TestCase
     protected function setUp(): void
     {
         $this->object     = new Roster;
-        $this->connection = new Test;
+        $this->connection = new ConnectionTestDouble();
         $options          = new Options;
         $options->setConnection($this->connection);
         $this->object->setOptions($options);

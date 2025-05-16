@@ -102,7 +102,7 @@ class RosterContext implements Context
 
     /**
      *
-     * @return \Fabiang\Xmpp\Connection\Test
+     * @return \Fabiang\Xmpp\Connection\ConnectionTestDouble
      */
     public function getConnection()
     {

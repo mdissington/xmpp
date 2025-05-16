@@ -1,7 +1,6 @@
-/vendor/
+/build/docs/
 /nbproject/
+/phpunit.xml
+/vendor/
 composer.lock
 composer.phar
-/phpunit.xml
-.phpunit.result.cache
-/example.php.init.php

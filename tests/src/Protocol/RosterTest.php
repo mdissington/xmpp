@@ -70,7 +70,7 @@ class RosterTest extends TestCase
      */
     public function testToString()
     {
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             '#^<iq type="get" id="[^"]+"><query xmlns="jabber:iq:roster"/></iq>$#',
             $this->object->toString()
         );
