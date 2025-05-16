@@ -111,7 +111,8 @@ XML;
             $this->receivedAnyData = true;
             $address = $this->getAddress();
             $this->log("Received buffer '$buffer' from '{$address}'", LogLevel::DEBUG);
-            $this->getInputStream()->parse($buffer);
+            $message = $this->getInputStream()->parse($buffer);
+            $this->getEventManager()->trigger('receive', $this, [$message, $buffer]);
         }
 
         try {
@@ -160,7 +161,8 @@ XML;
         $address = $this->getAddress();
         $this->log("Sending data '$buffer' to '{$address}'", LogLevel::DEBUG);
         $this->getSocket()->write($buffer);
-        $this->getOutputStream()->parse($buffer);
+        $message = $this->getOutputStream()->parse($buffer);
+        $this->getEventManager()->trigger('send', $this, [$message, $buffer]);
 
         while ($this->checkBlockingListeners()) {
             $this->receive();
