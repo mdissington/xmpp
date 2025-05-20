@@ -51,6 +51,11 @@
     "suggest": {
         "psr/log-implementation": "Allows more advanced logging of the XMPP connection"
     },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.0.x-dev"
+        }
+    },
     "config": {
         "platform": {
             "php": "8.3"
@@ -67,6 +72,18 @@
             "/docs",
             "/bin",
             "/example.php"
+        ]
+    },
+    "scripts": {
+        "proj-vers": [
+            "@composer self-update",
+            "{ composer --ansi show --self | grep -P '^[a-z0-9]([_.-]?[a-z0-9]+)*/[a-z0-9]([_.-]?[a-z0-9]+)*'; composer --ansi show -Dl | sed -r -e 's/(.*?)\\x1b\\\\(.*)\\x1b\\\\/\\2\\x1b\\\\/g'; } | sort -Vi"
+        ],
+        "test": "phpunit tests/src/",
+        "analyse": "phpstan analyze src/ tests/",
+        "test-and-analyse": [
+            "@test",
+            "@analyse"
         ]
     }
 }
