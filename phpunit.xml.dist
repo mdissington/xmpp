@@ -50,7 +50,7 @@
     executionOrder="depends,defects"
     failOnRisky="true"
     failOnWarning="true"
-    requireCoverageMetadata="false"
+    requireCoverageMetadata="true"
     testdox="true">
     <!--
     <testsuites>

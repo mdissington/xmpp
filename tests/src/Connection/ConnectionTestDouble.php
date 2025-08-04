@@ -36,6 +36,7 @@
 
 namespace Fabiang\Xmpp\Connection;
 
+use Fabiang\Xmpp\EventListener\BlockingEventListenerInterface;
 use Fabiang\Xmpp\Util\XML;
 
 /**
@@ -47,29 +48,19 @@ class ConnectionTestDouble extends AbstractConnection
 {
 
     /**
-     * Data for next receive().
-     *
-     * @var array
+     * Data for next receive()
      */
-    protected $data = array();
+    protected array $data = [];
+    protected array $buffer = [];
 
-    /**
-     * Buffer data.
-     *
-     * @var array
-     */
-    protected $buffer = array();
-
-    /**
-     * {@inheritDoc}
-     */
     public function connect()
     {
         $this->connected = true;
+
         $this->send(sprintf(
-            Socket::STREAM_START,
-            XML::quote($this->getOptions()->getTo())
-        ));
+                Socket::STREAM_START,
+                XML::quote($this->getOptions()->getTo())
+            ));
     }
 
     /**
@@ -87,6 +78,7 @@ class ConnectionTestDouble extends AbstractConnection
     public function receive()
     {
         $buffer = null;
+
         if (!empty($this->data)) {
             $buffer = array_shift($this->data);
             $this->getInputStream()->parse($buffer);
@@ -110,23 +102,16 @@ class ConnectionTestDouble extends AbstractConnection
     }
 
     /**
-     * Set data for next receive().
-     *
-     * @param string|null $data
+     * Set data for next receive()
      * @return $this
      */
-    public function setData(?array $data = null)
+    public function setData(array $data): self
     {
         $this->data = $data;
         return $this;
     }
 
-    /**
-     * Return data.
-     *
-     * @return array
-     */
-    public function getData()
+    public function getData(): array
     {
         return $this->data;
     }
@@ -136,8 +121,13 @@ class ConnectionTestDouble extends AbstractConnection
      *
      * @return array
      */
-    public function getBuffer()
+    public function getBuffer(): array
     {
         return $this->buffer;
+    }
+
+    public function getLastBlockingListener(): BlockingEventListenerInterface
+    {
+        return $this->lastBlockingListener;
     }
 }
