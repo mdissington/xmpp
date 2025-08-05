@@ -1,0 +1,13 @@
+#includes:
+#	- ../vendor/phpstan/phpstan/conf/bleedingEdge.neon
+parameters:
+	phpVersion: 80300 # PHP 8.3
+	level: 2
+#	bootstrapFiles:
+#		- phpstan_bootstrap.php
+	paths:
+		- src/
+		- tests/src/
+	excludePaths:
+		analyse:
+		analyseAndScan:
