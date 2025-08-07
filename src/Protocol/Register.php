@@ -12,35 +12,26 @@ use Fabiang\Xmpp\Util\XML;
 class Register implements ProtocolImplementationInterface
 {
 
-    protected $to;
+    protected string $to;
 
-    protected $from;
+    protected string $from;
 
-    protected $step;
+    protected string $step;
 
-    protected $accountjid;
+    protected string $accountjid;
 
-    protected $password;
+    protected string $password;
 
-    protected $sid;
-    /**
-     * Constructor.
-     *
-     * @param integer $priority
-     * @param string $to
-     * @param string $nickname
-     */
-    public function __construct($to = null, $from = null, $step = 'one')
+    protected string $sid;
+
+    public function __construct( string $to = null, string $from = null, string $step = 'one' )
     {
         $this->setTo($to);
         $this->setFrom($from);
         $this->setStep($step);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function toString()
+    public function toString(): string
     {
         $req ='';
 
@@ -89,107 +80,86 @@ class Register implements ProtocolImplementationInterface
         return $req;
     }
 
-    /**
-     * Get JabberID.
-     *
-     * @return string
-     */
-    public function getJabberID()
+    public function getJabberID(): string
     {
         return $this->accountjid;
     }
 
     /**
-     * Set abberID.
-     *
-     * @param string $nickname
      * @return $this
      */
-    public function setJabberID($accountjid)
+    public function setJabberID( string $accountjid ): self
     {
-        $this->accountjid = (string) $accountjid;
+        $this->accountjid = $accountjid;
+
         return $this;
     }
 
-    /**
-     * Get JabberID.
-     *
-     * @return string
-     */
-    public function getTo()
+    public function getTo(): string
     {
         return $this->to;
     }
 
     /**
-     * Set abberID.
-     *
-     * @param string $nickname
      * @return $this
      */
-    public function setTo($to)
+    public function setTo( string $to ): self
     {
-        $this->to = (string) $to;
+        $this->to = $to;
         return $this;
     }
 
-    /**
-     * Get JabberID.
-     *
-     * @return string
-     */
-    public function getPassword()
+    public function getPassword(): string
     {
         return $this->password;
     }
 
     /**
-     * Set abberID.
-     *
-     * @param string $nickname
      * @return $this
      */
-    public function setPassword($password)
+    public function setPassword( string $password ): self
     {
-        $this->password = (string) $password;
+        $this->password = $password;
+
         return $this;
     }
 
-    /**
-     * Get JabberID.
-     *
-     * @return string
-     */
-    public function getFrom()
+    public function getFrom(): string
     {
         return $this->from;
     }
 
     /**
-     * Set abberID.
-     *
-     * @param string $nickname
      * @return $this
      */
-    public function setFrom($from)
+    public function setFrom( string $from): self
     {
-        $this->from = (string) $from;
+        $this->from = $from;
+
         return $this;
     }
 
-    public function setStep($step)
+    /**
+     * @return $this
+     */
+    public function setStep( string $step): self
     {
-        $this->step = (string) $step;
+        $this->step = $step;
+
         return $this;
     }
 
-    public function setSID($sid)
+    /**
+     * @return $this
+     */
+    public function setSID( string $sid): self
     {
-        $this->sid = (string) $sid;
+        $this->sid = $sid;
+
         return $this;
     }
 
-    public function getSID()
+    public function getSID(): string
     {
         return $this->sid;
     }

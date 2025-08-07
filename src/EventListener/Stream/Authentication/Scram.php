@@ -30,11 +30,8 @@ abstract class Scram extends AbstractEventListener implements AuthenticationInte
      * @var string
      */
     protected $password;
-
     protected $cNonce;
-
     protected $firstMessageBare;
-
     protected $serverSignature;
 
     /**
@@ -43,11 +40,11 @@ abstract class Scram extends AbstractEventListener implements AuthenticationInte
     public function attachEvents()
     {
         $input = $this->getInputEventManager();
-        $input->attach('{urn:ietf:params:xml:ns:xmpp-sasl}challenge', [$this, 'challenge']);
-        $input->attach('{urn:ietf:params:xml:ns:xmpp-sasl}success', [$this, 'success']);
+        $input->attach('{urn:ietf:params:xml:ns:xmpp-sasl}challenge', $this->challenge(...));
+        $input->attach('{urn:ietf:params:xml:ns:xmpp-sasl}success', $this->success(...));
 
         $output = $this->getOutputEventManager();
-        $output->attach('{urn:ietf:params:xml:ns:xmpp-sasl}auth', [$this, 'auth']);
+        $output->attach('{urn:ietf:params:xml:ns:xmpp-sasl}auth', $this->auth(...));
     }
 
     /**
@@ -59,7 +56,7 @@ abstract class Scram extends AbstractEventListener implements AuthenticationInte
         $this->password = $password;
         $this->cNonce = bin2hex(random_bytes(32));
         $this->firstMessageBare = sprintf('n=%s,r=%s', $this->username, $this->cNonce);
-        $msg = base64_encode('n,,'.$this->firstMessageBare);
+        $msg = base64_encode('n,,' . $this->firstMessageBare);
         $auth = sprintf('<auth xmlns="urn:ietf:params:xml:ns:xmpp-sasl" mechanism="%s">%s</auth>', static::MECHANISM, $msg);
         $this->getConnection()->send($auth);
     }
@@ -93,7 +90,7 @@ abstract class Scram extends AbstractEventListener implements AuthenticationInte
             }
             $salt = base64_decode($values['s'] ?? '');
             $iterations = $values['i'] ?? 0;
-            $finalMessage = 'c=biws,r='.$sNonce;
+            $finalMessage = 'c=biws,r=' . $sNonce;
             $saltedPassword = hash_pbkdf2(static::ALGO, $this->password, $salt, $iterations, 0, true);
             $clientKey = hash_hmac(static::ALGO, 'Client Key', $saltedPassword, true);
             $storedKey = hash(static::ALGO, $clientKey, true);
@@ -125,7 +122,7 @@ abstract class Scram extends AbstractEventListener implements AuthenticationInte
         preg_match_all('#(\w+)\=(?:"([^"]+)"|([^,]+))#', $challenge, $matches);
         list(, $variables, $quoted, $unquoted) = $matches;
         // filter empty strings; preserve keys
-        $quoted   = array_filter($quoted);
+        $quoted = array_filter($quoted);
         $unquoted = array_filter($unquoted);
         // replace "unquoted" values into "quoted" array and combine variables array with it
         return array_combine($variables, array_replace($quoted, $unquoted));

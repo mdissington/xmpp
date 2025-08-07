@@ -86,7 +86,7 @@ class ErrorHandlerTest extends TestCase
      */
     public function testExecuteSuccess()
     {
-        $object = new ErrorHandler('trim', ' test');
-        $this->assertSame('test', $object->execute('0', 1));
+        $object = new ErrorHandler(trim(...), ' test');
+        $this->assertSame('test', $object->execute(__FILE__, __LINE__));
     }
 }

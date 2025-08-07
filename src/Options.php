@@ -37,6 +37,7 @@
 namespace Fabiang\Xmpp;
 
 use Fabiang\Xmpp\Connection\ConnectionInterface;
+use Fabiang\Xmpp\Exception\InvalidArgumentException;
 use Fabiang\Xmpp\Protocol\ImplementationInterface;
 use Fabiang\Xmpp\Protocol\DefaultImplementation;
 use Psr\Log\LoggerInterface;
@@ -49,465 +50,353 @@ use Psr\Log\LoggerInterface;
 class Options
 {
 
-    /**
-     *
-     * @var ImplementationInterface
-     */
-    protected $implementation;
+    protected ImplementationInterface $implementation;
+    protected ?string $address                 = null;
+    protected ?ConnectionInterface $connection = null;
+    protected LoggerInterface $logger;
+    protected string $to                       = '';
+    protected string $username                 = '';
+    protected string $password                 = '';
+    protected string $jid                      = '';
+    protected string $sid                      = '';
+    protected bool $authenticated              = false;
 
     /**
-     *
-     * @var string
+     * @var array<\Fabiang\Xmpp\Protocol\User\User>
      */
-    protected $address;
+    protected array $users = [];
 
     /**
-     * Connection object.
-     *
-     * @var ConnectionInterface
+     * Timeout for connection
      */
-    protected $connection;
-
-    /**
-     * PSR-3 Logger interface.
-     *
-     * @var LoggerInterface
-     */
-    protected $logger;
-
-    /**
-     *
-     * @var string
-     */
-    protected $to;
-
-    /**
-     *
-     * @var string
-     */
-    protected $username = '';
-
-    /**
-     *
-     * @var string
-     */
-    protected $password;
-
-    /**
-     *
-     * @var string
-     */
-    protected $jid;
-
-    /**
-     *
-     * @var string
-     */
-    protected $sid;
-
-    /**
-     *
-     * @var boolean
-     */
-    protected $authenticated = false;
-
-    /**
-     *
-     * @var array
-     */
-    protected $users = [];
-
-    /**
-     * Timeout for connection.
-     *
-     * @var integer
-     */
-    protected $timeout = 30;
-
-    /**
-     * SOCKS proxy address
-     *
-     * @var string
-     */
-    protected $socksProxyAddress;
+    protected int $timeout              = 30;
+    protected string $socksProxyAddress = '';
 
     /**
      * Auto approve subscriptions
-     *
-     * @var boolean
      */
-    protected $autoSubscribe;
+    protected bool $autoSubscribe = false;
 
     /**
-     * Authentication methods.
-     *
-     * @var array
+     * Authentication methods and their implementation classes
+     * @var array<string,string>
      */
     protected $authenticationClasses = [
-        'scram-sha-512' => '\\Fabiang\\Xmpp\\EventListener\\Stream\\Authentication\\ScramSha512',
-        'scram-sha-256' => '\\Fabiang\\Xmpp\\EventListener\\Stream\\Authentication\\ScramSha256',
-        'scram-sha-1' => '\\Fabiang\\Xmpp\\EventListener\\Stream\\Authentication\\ScramSha1',
-        'digest-md5' => '\\Fabiang\\Xmpp\\EventListener\\Stream\\Authentication\\DigestMd5',
-        'plain'      => '\\Fabiang\\Xmpp\\EventListener\\Stream\\Authentication\\Plain',
-        'anonymous'  => '\\Fabiang\\Xmpp\\EventListener\\Stream\\Authentication\\Anonymous'
+        'anonymous'     => \Fabiang\Xmpp\EventListener\Stream\Authentication\Anonymous::class,
+        'digest-md5'    => \Fabiang\Xmpp\EventListener\Stream\Authentication\DigestMd5::class,
+        'plain'         => \Fabiang\Xmpp\EventListener\Stream\Authentication\Plain::class,
+        'scram-sha-1'   => \Fabiang\Xmpp\EventListener\Stream\Authentication\ScramSha1::class,
+        'scram-sha-256' => \Fabiang\Xmpp\EventListener\Stream\Authentication\ScramSha256::class,
+        'scram-sha-512' => \Fabiang\Xmpp\EventListener\Stream\Authentication\ScramSha512::class,
     ];
-
 
     /**
      * Options used to create a stream context
-     *
-     * @var array
+     * @var array<string,mixed>
      */
-    protected $contextOptions = [];
-
+    protected array $contextOptions = [];
 
     /**
-     * Constructor.
-     *
-     * @param string $address Server address
+     * @param ?string $address Server address
      */
-    public function __construct($address = null)
+    public function __construct(?string $address = null)
     {
-        if (null !== $address) {
+        $this->logger = new \Psr\Log\NullLogger();
+        $this->setImplementation(new DefaultImplementation());
+
+        if ($address !== null) {
             $this->setAddress($address);
         }
     }
 
     /**
-     * Get protocol implementation.
-     *
-     * @return ImplementationInterface
+     * Get protocol implementation
+     * @codeCoverageIgnore
      */
-    public function getImplementation()
+    public function getImplementation(): ImplementationInterface
     {
-        if (null === $this->implementation) {
-            $this->setImplementation(new DefaultImplementation());
-        }
-
         return $this->implementation;
     }
 
     /**
-     * Set protocol implementation.
-     *
-     * @param ImplementationInterface $implementation
+     * Set protocol implementation
      * @return $this
+     * @codeCoverageIgnore
      */
-    public function setImplementation(ImplementationInterface $implementation)
+    public function setImplementation(ImplementationInterface $implementation): self
     {
         $this->implementation = $implementation;
         return $this;
     }
 
     /**
-     * Get server address.
-     *
-     * @return string
+     * Get server address
+     * @codeCoverageIgnore
      */
-    public function getAddress()
+    public function getAddress(): ?string
     {
         return $this->address;
     }
 
     /**
-     * Set server address.
-     *
-     * When a address is passed this setter also calls setTo with the hostname part of the address.
-     *
-     * @param string $address Server address
+     * When an address is passed this setter also calls setTo with the hostname part of the address
      * @return $this
+     * @throws InvalidArgumentException if $address does not contain a host part
      */
-    public function setAddress($address)
+    public function setAddress(string $address): self
     {
-        $this->address = (string) $address;
-        if (false !== ($host = parse_url($address, PHP_URL_HOST))) {
-            $this->setTo($host);
+        $this->address = $address;
+        $host          = parse_url($address, PHP_URL_HOST);
+
+        if (!is_string($host)) {
+            throw new InvalidArgumentException('Argument #1 $address of '.__CLASS__.'::'.__METHOD__.'() must contain "host" part');
         }
+
+        $this->setTo($host);
+
         return $this;
     }
 
     /**
-     * Get connection object.
-     *
-     * @return ConnectionInterface
+     * @codeCoverageIgnore
      */
-    public function getConnection()
+    public function getConnection(): ?ConnectionInterface
     {
         return $this->connection;
     }
 
     /**
-     * Set connection object.
-     *
-     * @param ConnectionInterface $connection
      * @return $this
+     * @codeCoverageIgnore
      */
-    public function setConnection(ConnectionInterface $connection)
+    public function setConnection(ConnectionInterface $connection): self
     {
         $this->connection = $connection;
         return $this;
     }
 
     /**
-     * Get logger instance.
-     *
-     * @return LoggerInterface
+     * @codeCoverageIgnore
      */
-    public function getLogger()
+    public function getLogger(): LoggerInterface
     {
         return $this->logger;
     }
 
     /**
-     * Set logger instance.
-     *
-     * @param \Psr\Log\LoggerInterface $logger PSR-3 Logger
      * @return $this
+     * @codeCoverageIgnore
      */
-    public function setLogger(LoggerInterface $logger)
+    public function setLogger(LoggerInterface $logger): self
     {
         $this->logger = $logger;
         return $this;
     }
 
     /**
-     * Get server name.
-     *
-     * @return string
+     * Get server name
+     * @codeCoverageIgnore
      */
-    public function getTo()
+    public function getTo(): string
     {
         return $this->to;
     }
 
     /**
-     * Set server name.
+     * Set server name
      *
      * This value is send to the server in requests as to="" attribute.
-     *
-     * @param string $to
      * @return $this
+     * @codeCoverageIgnore
      */
-    public function setTo($to)
+    public function setTo(string $to): self
     {
         $this->to = (string) $to;
         return $this;
     }
 
-    /**
-     * Get username.
-     *
-     * @return string
-     */
-    public function getUsername()
+    public function getUsername(): string
     {
-        return explode('/', $this->username)[0];
+        return explode('/', $this->username)[0] ?? '';
     }
 
     /**
-     * Set username.
-     *
-     * @param string $username
      * @return $this
+     * @codeCoverageIgnore
      */
-    public function setUsername($username)
+    public function setUsername(string $username): self
     {
         $this->username = (string) $username;
         return $this;
     }
 
-    /**
-     * Get resource.
-     *
-     * @return string
-     */
-    public function getResource()
+    public function getResource(): string
     {
-        $username = explode('/', $this->username);
-        return isset($username[1]) ? $username[1] : '';
+        return explode('/', $this->username)[1] ?? '';
     }
 
     /**
-     * Get password.
-     *
-     * @return string
+     * @codeCoverageIgnore
      */
-    public function getPassword()
+    public function getPassword(): string
     {
         return $this->password;
     }
 
     /**
-     * Set password.
-     *
-     * @param string $password
      * @return $this
+     * @codeCoverageIgnore
      */
-    public function setPassword($password)
+    public function setPassword(string $password): self
     {
         $this->password = (string) $password;
         return $this;
     }
 
     /**
-     * Get users jid.
-     *
-     * @return string
+     * @codeCoverageIgnore
      */
-    public function getJid()
+    public function getJid(): string
     {
         return $this->jid;
     }
 
     /**
-     * Set users jid.
-     *
-     * @param string $jid
      * @return $this
+     * @codeCoverageIgnore
      */
-    public function setJid($jid)
+    public function setJid(string $jid): self
     {
-        $this->jid = (string) $jid;
+        $this->jid = $jid;
         return $this;
     }
 
     /**
-     * Get users jid.
-     *
-     * @return string
+     * @codeCoverageIgnore
      */
-    public function getSid()
+    public function getSid(): string
     {
         return $this->sid;
     }
 
     /**
-     * Set users jid.
-     *
-     * @param string $jid
      * @return $this
+     * @codeCoverageIgnore
      */
-    public function setSid($sid)
+    public function setSid(string $sid): self
     {
-        $this->sid = (string) $sid;
+        $this->sid = $sid;
         return $this;
     }
 
     /**
-     * Is user authenticated.
-     *
-     * @return boolean
+     * @codeCoverageIgnore
      */
-    public function isAuthenticated()
+    public function isAuthenticated(): bool
     {
         return $this->authenticated;
     }
 
     /**
-     * Set authenticated.
-     *
-     * @param boolean $authenticated Flag
      * @return $this
+     * @codeCoverageIgnore
      */
-    public function setAuthenticated($authenticated)
+    public function setAuthenticated(bool $authenticated): self
     {
-        $this->authenticated = (bool) $authenticated;
+        $this->authenticated = $authenticated;
         return $this;
     }
 
     /**
-     * Get users.
-     *
-     * @return Protocol\User\User[]
+     * Get users list
+     * @return array<\Fabiang\Xmpp\Protocol\User\User>
+     * @codeCoverageIgnore
      */
-    public function getUsers()
+    public function getUsers(): array
     {
         return $this->users;
     }
 
     /**
-     * Set users.
-     *
-     * @param array $users User list
+     * Set users list
+     * @param array<\Fabiang\Xmpp\Protocol\User\User> $users
      * @return $this
+     * @codeCoverageIgnore
      */
-    public function setUsers(array $users)
+    public function setUsers(array $users): self
     {
         $this->users = $users;
         return $this;
     }
 
     /**
-     * Get authentication classes.
-     *
-     * @return array
+     * @return array<string,string>
+     * @codeCoverageIgnore
      */
-    public function getAuthenticationClasses()
+    public function getAuthenticationClasses(): array
     {
         return $this->authenticationClasses;
     }
 
     /**
-     *
-     * @param array $authenticationClasses Authentication classes
+     * @param array<string,string> $authenticationClasses
      * @return $this
+     * @codeCoverageIgnore
      */
-    public function setAuthenticationClasses(array $authenticationClasses)
+    public function setAuthenticationClasses(array $authenticationClasses): self
     {
         $this->authenticationClasses = $authenticationClasses;
         return $this;
     }
 
     /**
-     * Get timeout for connection.
-     *
-     * @return integer
+     * Get timeout for connection
+     * @codeCoverageIgnore
      */
-    public function getTimeout()
+    public function getTimeout(): int
     {
         return $this->timeout;
     }
 
     /**
-     * Set timeout for connection.
-     *
-     * @param integer $timeout Seconds
-     * @return \Fabiang\Xmpp\Options
+     * Set timeout for connection
+     * @param int $timeout Seconds
+     * @return $this
+     * @codeCoverageIgnore
      */
-    public function setTimeout($timeout)
+    public function setTimeout(int $timeout): self
     {
-        $this->timeout = (int) $timeout;
+        $this->timeout = $timeout;
         return $this;
     }
 
     /**
      * Get context options for connection
-     *
-     * @return array
+     * @return array<string,mixed>
+     * @codeCoverageIgnore
      */
-    public function getContextOptions()
+    public function getContextOptions(): array
     {
         return $this->contextOptions;
     }
 
     /**
      *  Set context options for connection
-     *
-     * @param array $contextOptions
-     * @return \Fabiang\Xmpp\Options
+     * @param array<string,mixed> $contextOptions
+     * @return $this
+     * @codeCoverageIgnore
      */
-    public function setContextOptions($contextOptions)
+    public function setContextOptions(array $contextOptions): self
     {
-        $this->contextOptions = (array) $contextOptions;
+        $this->contextOptions = $contextOptions;
         return $this;
     }
 
     /**
      * Get SOCKS proxy address
-     *
-     * @return string
+     * @codeCoverageIgnore
      */
-    public function getSocksProxyAddress()
+    public function getSocksProxyAddress(): string
     {
         return $this->socksProxyAddress;
     }
@@ -516,9 +405,10 @@ class Options
      * Set SOCKS proxy address
      *
      * @param string $socksProxyAddress
-     * @return \Fabiang\Xmpp\Options
+     * @return $this
+     * @codeCoverageIgnore
      */
-    public function setSocksProxyAddress($socksProxyAddress)
+    public function setSocksProxyAddress(string $socksProxyAddress): self
     {
         $this->socksProxyAddress = $socksProxyAddress;
         return $this;
@@ -526,21 +416,19 @@ class Options
 
     /**
      * Get auto approve subscriptions
-     *
-     * @return boolean
+     * @codeCoverageIgnore
      */
-    public function getAutoSubscribe()
+    public function getAutoSubscribe(): bool
     {
         return $this->autoSubscribe;
     }
 
     /**
      * Set auto approve subscriptions
-     *
-     * @param boolean $autoSubscribe
-     * @return \Fabiang\Xmpp\Options
+     * @return $this
+     * @codeCoverageIgnore
      */
-    public function setAutoSubscribe($autoSubscribe)
+    public function setAutoSubscribe(bool $autoSubscribe): self
     {
         $this->autoSubscribe = $autoSubscribe;
         return $this;

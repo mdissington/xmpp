@@ -36,7 +36,8 @@ class SocksProxy extends SocketClient
         $this->realAddress = $trimPrefix($options->getAddress(), 'tcp://');
     }
 
-    public function connect($timeout = 30, $persistent = false)
+    #[\Override]
+    public function connect(int $timeout = 30, bool $persistent = false): void
     {
         parent::connect($timeout, $persistent);
         $methods = chr(0);

@@ -68,10 +68,8 @@ class Roster extends AbstractEventListener implements BlockingEventListenerInter
      */
     public function attachEvents()
     {
-        $this->getOutputEventManager()
-            ->attach('{jabber:iq:roster}query', [$this, 'query']);
-        $this->getInputEventManager()
-            ->attach('{jabber:iq:roster}query', [$this, 'result']);
+        $this->getOutputEventManager()->attach('{jabber:iq:roster}query', $this->query(...));
+        $this->getInputEventManager()->attach('{jabber:iq:roster}query', $this->result(...));
     }
 
     /**

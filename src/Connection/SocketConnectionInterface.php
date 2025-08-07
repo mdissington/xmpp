@@ -46,11 +46,12 @@ use Fabiang\Xmpp\Stream\SocketClient;
 interface SocketConnectionInterface
 {
 
+    public function __construct(SocketClient $socket);
+
     /**
-     * Set socket instance.
-     *
-     * @param SocketClient $socket
      * @return $this
      */
-    public function setSocket(SocketClient $socket);
+    public function setSocket(SocketClient $socket): self;
+
+    public function getSocket(): SocketClient;
 }

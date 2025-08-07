@@ -48,6 +48,7 @@ use Fabiang\Xmpp\OptionsAwareInterface;
  */
 interface ConnectionInterface extends EventManagerAwareInterface, OptionsAwareInterface
 {
+
     /**
      * Connect.
      *
@@ -61,7 +62,7 @@ interface ConnectionInterface extends EventManagerAwareInterface, OptionsAwareIn
      * @return void
      */
     public function disconnect();
-    
+
     /**
      * Set stream is ready.
      * 
@@ -83,7 +84,7 @@ interface ConnectionInterface extends EventManagerAwareInterface, OptionsAwareIn
      * @return boolean
      */
     public function isConnected();
-    
+
     /**
      * Receive data.
      *
@@ -128,7 +129,7 @@ interface ConnectionInterface extends EventManagerAwareInterface, OptionsAwareIn
      * @return $this
      */
     public function setInputStream(XMLStream $inputStream);
-    
+
     /**
      * Reset streams.
      * 

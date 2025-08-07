@@ -55,9 +55,7 @@ class XMLParserException extends RuntimeException
     public static function create($parser)
     {
         if (!($parser instanceof \XMLParser) && (!is_resource($parser) || 'xml' !== get_resource_type($parser))) {
-            $message = 'Argument #1 of "' . __CLASS__ . '::'
-                . __METHOD__ . '" must be a resource returned by "xml_parser_create"';
-            throw new InvalidArgumentException($message);
+            throw new InvalidArgumentException('Argument #1 $parser of '.__CLASS__.'::'.__METHOD__.'() must be a resource returned by "xml_parser_create"');
         }
 
         $code   = xml_get_error_code($parser);
@@ -65,9 +63,6 @@ class XMLParserException extends RuntimeException
         $line   = xml_get_current_line_number($parser);
         $column = xml_get_current_column_number($parser);
 
-        return new static(
-            sprintf('XML parsing error: "%s" at Line %d at column %d', $error, $line, $column),
-            $code
-        );
+        return new static(sprintf('XML parsing error: "%s" at Line %d at column %d', $error, $line, $column), $code);
     }
 }

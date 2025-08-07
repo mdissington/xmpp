@@ -45,37 +45,37 @@ use Fabiang\Xmpp\Event\EventInterface;
  */
 interface EventManagerInterface
 {
+
     /**
-     * Trigger an event.
-     * 
-     * @param string $event      Name of the event
-     * @param object $caller     Triggering object (caller)
-     * @param array  $parameters Event parameters
+     * Trigger an event
+     * @param string $event Name of the event
+     * @param object $caller Triggering object (caller)
+     * @param array<mixed> $parameters Event parameters
      * @return void
      */
-    public function trigger($event, $caller, array $parameters);
-    
+    public function trigger(string $event, object $caller, array $parameters): void;
+
     /**
-     * Attach event.
-     * 
-     * @param string   $event    Name of the event
+     * Attach event
+     * @param string $event Name of the event
      * @param callable $callback Callback that handles the event
-     * @return void
-     */
-    public function attach($event, callable $callback);
-    
-    /**
-     * Return event object.
-     * 
-     * @return EventInterface
-     */
-    public function getEventObject();
-    
-    /**
-     * Set event object.
-     * 
-     * @param EventInterface $eventObject
      * @return $this
      */
-    public function setEventObject(EventInterface $eventObject);
+    public function attach(string $event, callable $callback): self;
+
+    /**
+     * Return event object
+     * @return EventInterface
+     */
+    public function getEventObject(): EventInterface;
+
+    /**
+     * @return $this
+     */
+    public function setEventObject(EventInterface $eventObject): self;
+
+    /**
+     * @return array<string,array<int,callable>>
+     */
+    public function getEventList(): array;
 }

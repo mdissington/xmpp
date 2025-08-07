@@ -57,7 +57,7 @@ interface EventInterface
      * @param string $name Event name
      * @return $this
      */
-    public function setName($name);
+    public function setName(string $name): self;
 
     /**
      * Return calling object.
@@ -72,7 +72,7 @@ interface EventInterface
      * @param object $target Calling object
      * @return $this
      */
-    public function setTarget($target);
+    public function setTarget(object $target): self;
 
     /**
      * Return parameters.
@@ -90,12 +90,10 @@ interface EventInterface
     public function setParameters(array $parameters);
     
     /**
-     * Get a parameter by index.
-     * 
-     * @param integer $index
-     * @retrun mixed
+     * Get a parameter by index
+     * @return mixed
      */
-    public function getParameter($index);
+    public function getParameter(int $index);
 
     /**
      * Get list of previous called callbacks.

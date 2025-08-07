@@ -51,18 +51,11 @@ class EventManager implements EventManagerInterface
     const WILDCARD = '*';
 
     /**
-     * Attached events.
-     *
-     * @var array
+     * Attached events
+     * @var array<string,array<int,callable>>
      */
-    protected $events = [self::WILDCARD => []];
-
-    /**
-     * Event object.
-     *
-     * @var EventInterface
-     */
-    protected $eventObject;
+    protected array $events = [self::WILDCARD => []];
+    protected EventInterface $eventObject;
 
     /**
      * Constructor sets default event object.
@@ -76,17 +69,9 @@ class EventManager implements EventManagerInterface
         $this->eventObject = $eventObject;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function attach($event, $callback)
+    #[\Override]
+    public function attach(string $event, callable $callback): self
     {
-        if (!is_callable($callback, true)) {
-            throw new InvalidArgumentException(
-                'Second argument of "' . __CLASS__ . '"::attach must be a valid callback'
-            );
-        }
-
         if (!isset($this->events[$event])) {
             $this->events[$event] = [];
         }
@@ -94,12 +79,12 @@ class EventManager implements EventManagerInterface
         if (!in_array($callback, $this->events[$event], true)) {
             $this->events[$event][] = $callback;
         }
+
+        return $this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function trigger($event, $caller, array $parameters)
+    #[\Override]
+    public function trigger(string $event, object $caller, array $parameters): void
     {
         if (empty($this->events[$event]) && empty($this->events[self::WILDCARD])) {
             return;
@@ -129,29 +114,21 @@ class EventManager implements EventManagerInterface
         } while (count($callbacks) > 0);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getEventObject()
+    #[\Override]
+    public function getEventObject(): EventInterface
     {
         return $this->eventObject;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function setEventObject(EventInterface $eventObject)
+    #[\Override]
+    public function setEventObject(EventInterface $eventObject): self
     {
         $this->eventObject = $eventObject;
         return $this;
     }
 
-    /**
-     * Return list of events.
-     *
-     * @return array
-     */
-    public function getEventList()
+    #[\Override]
+    public function getEventList(): array
     {
         return $this->events;
     }

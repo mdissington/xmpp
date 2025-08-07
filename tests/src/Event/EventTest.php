@@ -93,7 +93,7 @@ class EventTest extends TestCase
      */
     public function testGetParameters()
     {
-        $params = array(1, 2, 3);
+        $params = [1, 2, 3];
         $this->assertSame($params, $this->object->setParameters($params)->getParameters());
     }
 
@@ -106,9 +106,7 @@ class EventTest extends TestCase
      */
     public function testSetAndGetEventStack()
     {
-        $stack = array(function() {
-
-        });
+        $stack = [function () {}];
         $this->assertSame($stack, $this->object->setEventStack($stack)->getEventStack());
     }
 
@@ -122,7 +120,7 @@ class EventTest extends TestCase
      */
     public function testGetParameter()
     {
-        $this->object->setParameters(array(1, 2, 3));
+        $this->object->setParameters([1, 2, 3]);
         $this->assertSame(1, $this->object->getParameter(0));
         $this->assertSame(2, $this->object->getParameter(1));
         $this->assertSame(3, $this->object->getParameter(2));
@@ -140,18 +138,4 @@ class EventTest extends TestCase
         $this->expectException(\Fabiang\Xmpp\Exception\OutOfRangeException::class);
         $this->object->getParameter(0);
     }
-
-    /**
-     * Test getting parameter by missing index.
-     *
-     * @covers ::getParameter
-     * @uses Fabiang\Xmpp\Event\Event::getParameters
-     * @return void
-     */
-    public function testGetParameterIbvalidType()
-    {
-        $this->expectException(\Fabiang\Xmpp\Exception\InvalidArgumentException::class);
-        $this->object->getParameter('test');
-    }
-
 }

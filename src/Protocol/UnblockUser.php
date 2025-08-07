@@ -46,22 +46,20 @@ use Fabiang\Xmpp\Util\XML;
 class UnblockUser implements ProtocolImplementationInterface
 {
 
-	// the jid of the user to block
-	protected $accountjid;
-    /**
-     * {@inheritDoc}
-     */
+    protected string $accountjid;
+
+    #[\Override]
     public function toString()
     {
         return XML::quoteMessage(
-            '<iq type="set" id="%s">
+                '<iq type="set" id="%s">
                 <unblock xmlns="urn:xmpp:blocking">
                     <item jid="%s"/>
                 </unblock>
             </iq>',
-            XML::generateId(),
-            $this->getJabberID()
-        );
+                XML::generateId(),
+                             $this->getJabberID()
+            );
     }
 
     /**
@@ -75,12 +73,10 @@ class UnblockUser implements ProtocolImplementationInterface
     }
 
     /**
-     * Set abberID.
-     *
-     * @param string $nickname
+     * @param string $accountjid The JID of the user to unblock
      * @return $this
      */
-    public function setJabberID($accountjid)
+    public function setJabberID(string $accountjid): self
     {
         $this->accountjid = (string) $accountjid;
         return $this;
