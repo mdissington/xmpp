@@ -217,6 +217,7 @@ class Options
 
     public function getUsername(): string
     {
+        /** @phpstan-ignore nullCoalesce.offset */
         return explode('/', $this->username)[0] ?? '';
     }
 

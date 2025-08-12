@@ -156,6 +156,8 @@ class SocketTest extends TestCase
                         $this->assertEquals($data, $value);
                         break;
                 }
+
+                return strlen($data);
             });
 
         $this->object->send($data);

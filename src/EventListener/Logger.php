@@ -55,11 +55,8 @@ class Logger extends AbstractEventListener
     public function event(EventInterface $event): self
     {
         $logger = $this->getOptions()->getLogger();
-
-        if (null !== $logger) {
-            list($message, $level) = $event->getParameters();
-            $logger->log($level, $message);
-        }
+        list($message, $level) = $event->getParameters();
+        $logger->log($level, $message);
 
         return $this;
     }

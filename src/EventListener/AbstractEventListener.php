@@ -48,56 +48,35 @@ use Fabiang\Xmpp\Options;
  */
 abstract class AbstractEventListener implements EventListenerInterface
 {
-    /**
-     * Options.
-     *
-     * @var Options
-     */
-    protected $options;
 
-    /**
-     * Eventmanager.
-     *
-     * @var EventManagerInterface
-     */
-    protected $eventManager;
+    protected Options $options;
+    protected EventManagerInterface $eventManager;
 
-    /**
-     * Get connection.
-     *
-     * @return ConnectionInterface
-     */
-    protected function getConnection()
+    protected function getConnection(): ?ConnectionInterface
     {
         return $this->getOptions()->getConnection();
     }
 
     /**
-     * Get event manager for XML input.
-     *
-     * @return EventManager
+     * Get event manager for XML input
      */
-    protected function getInputEventManager()
+    protected function getInputEventManager(): EventManagerInterface
     {
         return $this->getConnection()->getInputStream()->getEventManager();
     }
 
     /**
-     * Get event manager for XML output.
-     *
-     * @return EventManager
+     * Get event manager for XML output
      */
-    protected function getOutputEventManager()
+    protected function getOutputEventManager(): EventManagerInterface
     {
         return $this->getConnection()->getOutputStream()->getEventManager();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getEventManager()
+    #[\Override]
+    public function getEventManager(): EventManagerInterface
     {
-        if (null === $this->eventManager) {
+        if (!isset($this->eventManager)) {
             $this->setEventManager(new EventManager());
         }
 
@@ -105,26 +84,26 @@ abstract class AbstractEventListener implements EventListenerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @return $this
      */
-    public function setEventManager(EventManagerInterface $eventManager)
+    #[\Override]
+    public function setEventManager(EventManagerInterface $eventManager): self
     {
         $this->eventManager = $eventManager;
         return $this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getOptions()
+    #[\Override]
+    public function getOptions(): Options
     {
         return $this->options;
     }
 
     /**
-     * {@inheritDoc}
+     * @return $this
      */
-    public function setOptions(Options $options)
+    #[\Override]
+    public function setOptions(Options $options): self
     {
         $this->options = $options;
         return $this;

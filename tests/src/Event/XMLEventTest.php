@@ -65,9 +65,11 @@ class XMLEventTest extends TestCase
      * @covers Fabiang\Xmpp\Event\XMLEvent::setStartTag
      * @return void
      */
-    public function testIsStartTagAndSetStartTag()
+    public function testIsStartTagIsEndTagAndSetStartTag()
     {
         $this->assertFalse($this->object->isStartTag());
-        $this->assertTrue($this->object->setStartTag(true)->isStartTag());
+        $this->assertTrue($this->object->isEndTag());
+        $this->assertTrue($this->object->setIsStartTag(true)->isStartTag());
+        $this->assertFalse($this->object->isEndTag());
     }
 }

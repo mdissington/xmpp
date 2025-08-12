@@ -63,7 +63,7 @@ class EventManager implements EventManagerInterface
     public function __construct(?EventInterface $eventObject = null)
     {
         if (null === $eventObject) {
-            $eventObject = new Event;
+            $eventObject = new Event();
         }
 
         $this->eventObject = $eventObject;
