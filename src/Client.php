@@ -80,14 +80,14 @@ class Client implements EventManagerAwareInterface
             $connection = Socket::factory($options);
             $options->setConnection($connection);
         }
-        
-        $this->options = $options;
+
+        $this->options    = $options;
         $this->connection = $connection;
 
         if (null === $eventManager) {
             $eventManager = new EventManager();
         }
-        
+
         $this->eventManager = $eventManager;
         $this->setupImplementation();
     }
@@ -228,7 +228,7 @@ class Client implements EventManagerAwareInterface
     {
         $connection = $this->getConnection();
 
-        if ($connection instanceof SocketConnectionInterface) {
+        if ($connection->isConnected() && $connection->isReady() && $connection instanceof SocketConnectionInterface) {
             $connection->getSocket()->setBlocking($blocking);
         }
 

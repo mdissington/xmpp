@@ -36,13 +36,14 @@
 
 namespace Fabiang\Xmpp\Connection;
 
-use Fabiang\Xmpp\Stream\XMLStream;
-use Fabiang\Xmpp\EventListener\EventListenerInterface;
 use Fabiang\Xmpp\Event\EventManager;
 use Fabiang\Xmpp\Event\EventManagerInterface;
 use Fabiang\Xmpp\EventListener\BlockingEventListenerInterface;
-use Fabiang\Xmpp\Options;
+use Fabiang\Xmpp\EventListener\EventListenerInterface;
 use Fabiang\Xmpp\Exception\TimeoutException;
+use Fabiang\Xmpp\Options;
+use Fabiang\Xmpp\Stream\XMLStream;
+use Fabiang\Xmpp\Util\ErrorHandler;
 use Psr\Log\LogLevel;
 
 /**
@@ -54,27 +55,21 @@ abstract class AbstractConnection implements ConnectionInterface
 {
 
     /**
-     *
      * @var XMLStream
      */
     protected $outputStream;
 
     /**
-     *
      * @var XMLStream
      */
     protected $inputStream;
 
     /**
-     * Options.
-     *
      * @var Options
      */
     protected $options;
 
     /**
-     * Eventmanager.
-     *
      * @var EventManagerInterface
      */
     protected $events;
@@ -84,27 +79,14 @@ abstract class AbstractConnection implements ConnectionInterface
      *
      * @var EventListenerInterface[]
      */
-    protected $listeners = [];
-
-    /**
-     * Connected.
-     *
-     * @var boolean
-     */
-    protected $connected = false;
-
-    /**
-     *
-     * @var boolean
-     */
-    protected $ready = false;
+    protected $listeners      = [];
+    protected bool $connected = false;
+    protected bool $ready     = false;
 
     /**
      * Timestamp of last response data received.
-     *
-     * @var integer
      */
-    private $lastResponse;
+    protected int $lastResponse = 0;
 
     /**
      * Last blocking event listener.
@@ -113,11 +95,9 @@ abstract class AbstractConnection implements ConnectionInterface
      *
      * @var BlockingEventListenerInterface
      */
-    private $lastBlockingListener;
+    protected $lastBlockingListener;
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function getOutputStream()
     {
         if (null === $this->outputStream) {
@@ -127,9 +107,7 @@ abstract class AbstractConnection implements ConnectionInterface
         return $this->outputStream;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function getInputStream()
     {
         if (null === $this->inputStream) {
@@ -139,27 +117,21 @@ abstract class AbstractConnection implements ConnectionInterface
         return $this->inputStream;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function setOutputStream(XMLStream $outputStream)
     {
         $this->outputStream = $outputStream;
         return $this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function setInputStream(XMLStream $inputStream)
     {
         $this->inputStream = $inputStream;
         return $this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function addListener(EventListenerInterface $eventListener)
     {
         $this->listeners[] = $eventListener;
@@ -167,24 +139,24 @@ abstract class AbstractConnection implements ConnectionInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @codeCoverageIgnore
      */
+    #[\Override]
     public function isConnected()
     {
         return $this->connected;
     }
 
     /**
-     * {@inheritDoc}
+     * @codeCoverageIgnore
      */
+    #[\Override]
     public function isReady()
     {
         return $this->ready;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function setReady($flag)
     {
         $this->ready = (bool) $flag;
@@ -192,19 +164,16 @@ abstract class AbstractConnection implements ConnectionInterface
     }
 
     /**
-     * Reset streams.
-     *
      * @return void
      */
+    #[\Override]
     public function resetStreams()
     {
         $this->getInputStream()->reset();
         $this->getOutputStream()->reset();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function getEventManager()
     {
         if (null === $this->events) {
@@ -214,9 +183,7 @@ abstract class AbstractConnection implements ConnectionInterface
         return $this->events;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function setEventManager(EventManagerInterface $events)
     {
         $this->events = $events;
@@ -224,26 +191,24 @@ abstract class AbstractConnection implements ConnectionInterface
     }
 
     /**
-     * Get listeners.
-     *
-     * @return EventListenerInterface
+     * @codeCoverageIgnore
+     * @return EventListenerInterface[]
      */
-    public function getListeners()
+    public function getListeners(): array
     {
         return $this->listeners;
     }
 
     /**
-     * {@inheritDoc}
+     * @codeCoverageIgnore
      */
+    #[\Override]
     public function getOptions()
     {
         return $this->options;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function setOptions(Options $options)
     {
         $this->options = $options;
@@ -251,33 +216,25 @@ abstract class AbstractConnection implements ConnectionInterface
     }
 
     /**
-     * Call logging event.
-     *
-     * @param string  $message Log message
-     * @param integer $level   Log level
      * @return void
      */
-    protected function log($message, $level = LogLevel::DEBUG)
+    protected function log($message, string $level = LogLevel::DEBUG)
     {
         $this->getEventManager()->trigger('logger', $this, [$message, $level]);
     }
 
-    /**
-     * Check blocking event listeners.
-     *
-     * @return boolean
-     */
-    protected function checkBlockingListeners()
+    protected function checkBlockingListeners(): bool
     {
         $blocking = false;
+
         foreach ($this->listeners as $listener) {
-            $instanceof = $listener instanceof BlockingEventListenerInterface;
-            if ($instanceof && true === $listener->isBlocking()) {
+            if ($listener instanceof BlockingEventListenerInterface && $listener->isBlocking() === true) {
                 // cache the last blocking listener. Reducing output.
                 if ($this->lastBlockingListener !== $listener) {
-                    $this->log('Listener "' . get_class($listener) . '" is currently blocking', LogLevel::DEBUG);
+                    $this->log('Listener '.get_class($listener).' is currently blocking');
                     $this->lastBlockingListener = $listener;
                 }
+
                 $blocking = true;
             }
         }
@@ -287,25 +244,25 @@ abstract class AbstractConnection implements ConnectionInterface
 
     /**
      * Check for timeout.
-     *
-     * @param string $buffer Function required current received buffer
+     * @param ?string $buffer Function required current received buffer
      * @throws TimeoutException
      */
-    protected function checkTimeout($buffer)
+    protected function checkTimeout(?string $buffer): void
     {
         if (!empty($buffer)) {
             $this->lastResponse = time();
+
             return;
         }
 
-        if (null === $this->lastResponse) {
+        if (empty($this->lastResponse)) {
             $this->lastResponse = time();
         }
 
         $timeout = $this->getOptions()->getTimeout();
 
         if (time() >= $this->lastResponse + $timeout) {
-            throw new TimeoutException('Connection lost after ' . $timeout . ' seconds');
+            throw new TimeoutException(sprintf('Connection timed out after (%d) seconds', (time() - $this->lastResponse)));
         }
     }
 }

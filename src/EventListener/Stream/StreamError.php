@@ -48,18 +48,13 @@ use Fabiang\Xmpp\EventListener\AbstractEventListener;
 class StreamError extends AbstractEventListener
 {
 
-    /**
-     * {@inheritDoc}
-     */
     public function attachEvents()
     {
         $this->getInputEventManager()->attach('{http://etherx.jabber.org/streams}error', $this->error(...));
     }
 
     /**
-     * Throws an exception when stream error comes from input stream.
-     *
-     * @param \Fabiang\Xmpp\Event\XMLEvent $event
+     * Throws an exception when stream error comes from input stream
      * @throws StreamErrorException
      */
     public function error(XMLEvent $event)

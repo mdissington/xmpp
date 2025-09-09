@@ -123,11 +123,6 @@ class LoggerTest extends TestCase
             }
         }
 
-        //echo PHP_EOL;
-        //echo __CLASS__.':'.__METHOD__.':'.__LINE__.'|'.'$expected: '.\Fabiang\Xmpp\Util\ErrorHandler::get_var_dump($expected, 3).PHP_EOL;
-        //echo __CLASS__.':'.__METHOD__.':'.__LINE__.'|'.'$actual  : '.\Fabiang\Xmpp\Util\ErrorHandler::get_var_dump($actual, 4).PHP_EOL;
-        //echo PHP_EOL;
-
         $this->assertSame($expected, $actual);
     }
 

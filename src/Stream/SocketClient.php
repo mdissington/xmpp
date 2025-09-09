@@ -36,7 +36,9 @@
 
 namespace Fabiang\Xmpp\Stream;
 
+use Fabiang\Xmpp\Exception\ErrorException;
 use Fabiang\Xmpp\Exception\InvalidArgumentException;
+use Fabiang\Xmpp\Exception\SocketException;
 use Fabiang\Xmpp\Util\ErrorHandler;
 
 /**
@@ -47,50 +49,32 @@ use Fabiang\Xmpp\Util\ErrorHandler;
 class SocketClient
 {
 
-    const BUFFER_LENGTH = 4096;
+    const int BUFFER_LENGTH = 4096;
 
     /**
-     * Resource.
-     *
-     * @var resource
+     * @var ?resource
      */
-    protected $resource;
-
-    /**
-     * Address.
-     *
-     * @var string
-     */
-    protected $address;
-
+    protected $resource = null;
+    protected ?string $address = null;
 
     /**
      * Options used to create a stream context
      * @see http://php.net/manual/en/function.stream-context-create.php
-     *
-     * @var array
      */
-    protected $options;
+    protected array $options = [];
 
-    /**
-     * Constructor takes address as argument.
-     *
-     * @param string $address
-     */
-    public function __construct($address, $options = null)
+    public function __construct(string $address, array $options = null)
     {
         $this->address = $address;
-        $this->options = $options;
+        $this->options = $options ?? [];
     }
 
     /**
-     * Connect.
-     *
-     * @param integer $timeout Timeout for connection
-     * @param boolean $persistent Persitent connection
-     * @return void
+     * @param int $timeout Timeout for connection
+     * @param bool $persistent Create a persistent connection (use STREAM_CLIENT_PERSISTENT) - Should client socket remain persistent between page loads
+     * @throws ErrorException
      */
-    public function connect($timeout = 30, $persistent = false)
+    public function connect(int $timeout = 30, bool $persistent = false): void
     {
         $flags = STREAM_CLIENT_CONNECT;
 
@@ -108,78 +92,61 @@ class SocketClient
                     $context = stream_context_create($options);
                     return stream_socket_client($address, $errno, $errstr, $timeout, $flags, $context);
                 }
+
                 return stream_socket_client($address, $errno, $errstr, $timeout, $flags);
             },
-            $this->address,
+            $this->address ?? '',
             $timeout,
             $flags,
             $this->options
         );
-        $resource = $handler->execute(__FILE__, __LINE__);
 
+        $resource = $handler->execute(__FILE__, __LINE__);
         stream_set_timeout($resource, $timeout);
         $this->resource = $resource;
     }
 
     /**
-     * Reconnect and optionally use different address.
-     *
-     * @param string $address
-     * @param integer $timeout
-     * @param bool $persistent
+     * Reconnect and optionally use different address
      */
-    public function reconnect($address = null, $timeout = 30, $persistent = false)
+    public function reconnect(?string $address = null, ?int $timeout = 30, ?bool $persistent = false): void
     {
         $this->close();
 
-        if (null !== $this->address) {
+        if ($address !== null) {
             $this->address = $address;
         }
 
         $this->connect($timeout, $persistent);
     }
 
-    /**
-     * Close stream.
-     *
-     * @return void
-     */
-    public function close()
+    public function close(): void
     {
         fclose($this->resource);
     }
 
     /**
-     * Set stream blocking mode.
-     *
-     * @param boolean $flag Flag
+     * Set stream blocking mode
      * @return $this
      */
-    public function setBlocking($flag = true)
+    public function setBlocking(bool $flag = true): self
     {
-        stream_set_blocking($this->resource, (int)$flag);
+        stream_set_blocking($this->resource, $flag);
         return $this;
     }
 
     /**
-     * Read from stream.
-     *
-     * @param integer $length Bytes to read
-     * @return string
+     * @param int $length Count of bytes to read
      */
-    public function read($length = self::BUFFER_LENGTH)
+    public function read(int $length = self::BUFFER_LENGTH): string|false
     {
         return fread($this->resource, $length);
     }
 
     /**
-     * Write to stream.
-     *
-     * @param string $string String
-     * @param integer $length Limit
-     * @return void
+     * @param int $length Limit of bytes to write
      */
-    public function write($string, $length = null)
+    public function write(string $string, int $length = null): void
     {
         if (null !== $length) {
             fwrite($this->resource, $string, $length);
@@ -189,43 +156,34 @@ class SocketClient
     }
 
     /**
-     * Enable/disable cryptography on stream.
-     *
-     * @param boolean $enable Flag
-     * @param integer $cryptoType One of the STREAM_CRYPTO_METHOD_* constants.
-     * @return void
+     * Enable/disable cryptography on stream
+     * @param int $cryptoType One of the STREAM_CRYPTO_METHOD_* constants
+     * @throws ErrorException
      * @throws InvalidArgumentException
      */
-    public function crypto($enable, $cryptoType = null)
+    public function crypto(bool $enable, ?int $cryptoType = null): int|bool
     {
         if (false === $enable) {
-            $handler = new ErrorHandler('stream_socket_enable_crypto', $this->resource, false);
+            $handler = new ErrorHandler(stream_socket_enable_crypto(...), $this->resource, false);
             return $handler->execute(__FILE__, __LINE__);
         }
 
         if (null === $cryptoType) {
-            throw new InvalidArgumentException('Second argument is require when enabling crypto an stream');
+            throw new InvalidArgumentException('Argument #2 $cryptoType of '.__CLASS__.'::'.__METHOD__.'() is required when enabling encryption on a stream');
         }
 
         return stream_socket_enable_crypto($this->resource, $enable, $cryptoType);
     }
 
     /**
-     * Get socket stream.
-     *
-     * @return resource
+     * @return resource|null
      */
     public function getResource()
     {
         return $this->resource;
     }
 
-    /**
-     * Return address.
-     *
-     * @return string
-     */
-    public function getAddress()
+    public function getAddress(): ?string
     {
         return $this->address;
     }

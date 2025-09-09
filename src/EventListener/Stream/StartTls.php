@@ -50,28 +50,20 @@ class StartTls extends AbstractEventListener implements BlockingEventListenerInt
 {
 
     /**
-     * Listener blocks stream.
-     *
-     * @var boolean
+     * Listener blocks stream
      */
-    protected $blocking = false;
+    protected bool $blocking = false;
 
-    /**
-     * {@inheritDoc}
-     */
     public function attachEvents()
     {
-        $input = $this->getInputEventManager();
-        $input->attach('{urn:ietf:params:xml:ns:xmpp-tls}starttls', [$this, 'starttlsEvent']);
-        $input->attach('{urn:ietf:params:xml:ns:xmpp-tls}proceed', [$this, 'proceed']);
+        $this->getInputEventManager()->attach('{urn:ietf:params:xml:ns:xmpp-tls}starttls', $this->starttlsEvent(...));
+        $this->getInputEventManager()->attach('{urn:ietf:params:xml:ns:xmpp-tls}proceed', $this->proceed(...));
     }
 
     /**
-     * Send start tls command.
-     *
-     * @param XMLEvent $event XMLEvent object
+     * Send starttls command.
      */
-    public function starttlsEvent(XMLEvent $event)
+    public function starttlsEvent(XMLEvent $event): void
     {
         if (false === $event->isStartTag()) {
             $this->blocking = true;
@@ -83,28 +75,24 @@ class StartTls extends AbstractEventListener implements BlockingEventListenerInt
     }
 
     /**
-     * Start TLS response.
-     *
-     * @param XMLEvent $event XMLEvent object
-     * @return void
+     * starttls response
      */
-    public function proceed(XMLEvent $event)
+    public function proceed(XMLEvent $event): void
     {
         if (false === $event->isStartTag()) {
             $this->blocking = false;
+            $connection     = $this->getConnection();
 
-            $connection = $this->getConnection();
             if ($connection instanceof SocketConnectionInterface) {
-                $connection->getSocket()->crypto(true, STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT);
+                $connection->getSocket()->crypto(true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
             }
+
             $connection->resetStreams();
             $connection->connect();
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function isBlocking()
     {
         return $this->blocking;

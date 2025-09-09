@@ -58,7 +58,7 @@ interface EventManagerInterface
     /**
      * Attach event
      * @param string $event Name for the event
-     * @param callable(EventInterface $callback): void $callback Callback that handles the event
+     * @param callable(EventInterface $event): void $callback Callback that handles the event
      * @return $this
      */
     public function attach(string $event, callable $callback): self;
