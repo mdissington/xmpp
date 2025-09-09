@@ -78,10 +78,10 @@ abstract class AbstractSessionEvent extends AbstractEventListener
             if ('features' === $element->parentNode->localName) {
                 $this->blocking = true;
                 $this->getConnection()->send(sprintf(
-                    $data,
-                    $this->getId(),
-                    $this->getOptions()->getResource()
-                ));
+                        $data,
+                        $this->getId(),
+                        $this->getOptions()->getResource()
+                    ));
             }
         }
     }

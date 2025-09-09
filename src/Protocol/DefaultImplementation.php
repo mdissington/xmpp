@@ -72,26 +72,21 @@ class DefaultImplementation implements ImplementationInterface
      */
     protected $events;
 
-    /**
-     * {@inheritDoc}
-     */
-    public function register()
-    {
-        $this->registerListener(new Stream);
-        $this->registerListener(new StreamError);
-        $this->registerListener(new StartTls);
-        $this->registerListener(new Authentication);
-        $this->registerListener(new Bind);
-        $this->registerListener(new Session);
-        $this->registerListener(new RosterListener);
-        $this->registerListener(new RegisterListener);
-        $this->registerListener(new BlockedUsersListener);
+    #[\Override]
+    public function register() {
+        $this->registerListener(new Stream())
+            ->registerListener(new StreamError())
+            ->registerListener(new StartTls())
+            ->registerListener(new Authentication())
+            ->registerListener(new Bind())
+            ->registerListener(new Session())
+            ->registerListener(new RosterListener())
+            ->registerListener(new RegisterListener())
+            ->registerListener(new BlockedUsersListener());
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function registerListener(EventListenerInterface $eventListener)
+	#[\Override]
+	public function registerListener(EventListenerInterface $eventListener)
     {
         $connection = $this->getOptions()->getConnection();
 
@@ -100,28 +95,24 @@ class DefaultImplementation implements ImplementationInterface
             ->attachEvents();
 
         $connection->addListener($eventListener);
+
+        return $this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function getOptions()
     {
         return $this->options;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function setOptions(Options $options)
     {
         $this->options = $options;
         return $this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function getEventManager()
     {
         if (null === $this->events) {
@@ -131,9 +122,7 @@ class DefaultImplementation implements ImplementationInterface
         return $this->events;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function setEventManager(EventManagerInterface $events)
     {
         $this->events = $events;

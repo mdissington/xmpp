@@ -2,9 +2,7 @@
 #	- ../vendor/phpstan/phpstan/conf/bleedingEdge.neon
 parameters:
 	phpVersion: 80300 # PHP 8.3
-	level: 2
-#	bootstrapFiles:
-#		- phpstan_bootstrap.php
+	level: 4
 	paths:
 		- src/
 		- tests/src/

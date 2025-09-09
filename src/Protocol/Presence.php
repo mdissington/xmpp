@@ -45,10 +45,10 @@ use Fabiang\Xmpp\Util\XML;
  */
 class Presence implements ProtocolImplementationInterface
 {
+
     /**
      * Signals that the entity is available for communication.
      */
-
     const TYPE_AVAILABLE = 'available';
 
     /**
@@ -117,92 +117,69 @@ class Presence implements ProtocolImplementationInterface
      * @var string|null
      */
     protected $to;
-
-    /**
-     * Priority.
-     *
-     * @var integer
-     */
-    protected $priority = 1;
+    protected int $priority;
 
     /**
      * Type for presence.
      *
-     * @var string|null
+     * @var ?string
      */
-    protected $type;
+    protected ?string $type;
 
     /**
-     * Channel password.
-     *
-     * @var string
+     * Channel password
      */
-    protected $password;
+    protected ?string $password = null;
 
     /**
      * Constructor.
      *
-     * @param integer $priority
-     * @param string $to
-     * @param string $type
+     * @param int $priority
+     * @param ?string $to
+     * @param ?string $type
      */
-    public function __construct($priority = 1, $to = null, $type = null)
+    public function __construct($priority = 1, ?string $to = null, ?string $type = null)
     {
         $this->setPriority($priority)->setTo($to)->setType($type);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function toString()
+    #[\Override]
+    public function toString(): string
     {
         $presence = '<presence';
 
         if (null !== $this->getTo()) {
-            $presence .= ' to="' . XML::quote($this->getTo()) . '"';
+            $presence .= ' to="'.XML::quote($this->getTo()).'"';
         }
         if (null !== $this->getType()) {
-            $presence .= ' type="' . XML::quote($this->getType()) . '"';
+            $presence .= ' type="'.XML::quote($this->getType()).'"';
         }
 
-        $presence .= '><priority>' . $this->getPriority() . '</priority>';
+        $presence .= '><priority>'.$this->getPriority().'</priority>';
 
         if (null !== $this->getPassword()) {
-            $presence .= "<x xmlns='http://jabber.org/protocol/muc'><password>" . $this->getPassword() . "</password></x>";
+            $presence .= "<x xmlns='http://jabber.org/protocol/muc'><password>".$this->getPassword()."</password></x>";
         }
 
         $presence .= '</presence>';
         return $presence;
     }
 
-    /**
-     * Get type.
-     *
-     * @return string|null
-     */
-    public function getType()
+    public function getType(): ?string
     {
         return $this->type;
     }
 
     /**
-     * Set type.
-     *
-     * @param string|null $type
      * @return $this
      */
-    public function setType($type = null)
+    public function setType(?string $type = null): self
     {
-        $this->type = $type ? (string)$type : $type;
+        $this->type = $type ? (string) $type : $type;
         return $this;
     }
 
-    /**
-     * Get to.
-     *
-     * @return string¦null
-     */
-    public function getTo()
+    public function getTo(): ?string
     {
         return $this->to;
     }
@@ -219,45 +196,33 @@ class Presence implements ProtocolImplementationInterface
         return $this;
     }
 
-    /**
-     * Get priority.
-     *
-     * @return integer
-     */
-    public function getPriority()
+    public function getPriority(): int
     {
         return $this->priority;
     }
 
     /**
-     * Set priority.
-     *
-     * @param integer $priority
      * @return $this
      */
-    public function setPriority($priority)
+    public function setPriority(int $priority): self
     {
-        $this->priority = (int) $priority;
+        $this->priority = $priority;
         return $this;
     }
 
     /**
-     * Get channel password.
-     *
-     * @return string¦null
+     * Get channel password
      */
-    public function getPassword()
+    public function getPassword(): ?string
     {
         return $this->password;
     }
 
     /**
-     * Set channel password.
-     *
-     * @param string|null $to
+     * Set channel password
      * @return $this
      */
-    public function setPassword($password = null)
+    public function setPassword(?string $password = null): self
     {
         $this->password = $password;
         return $this;

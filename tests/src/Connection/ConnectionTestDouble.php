@@ -53,6 +53,7 @@ class ConnectionTestDouble extends AbstractConnection
     protected array $data = [];
     protected array $buffer = [];
 
+    #[\Override]
     public function connect()
     {
         $this->connected = true;
@@ -63,18 +64,14 @@ class ConnectionTestDouble extends AbstractConnection
             ));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function disconnect()
     {
         $this->send(Socket::STREAM_END);
         $this->connected = false;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function receive()
     {
         $buffer = null;
@@ -88,9 +85,7 @@ class ConnectionTestDouble extends AbstractConnection
         return $buffer;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function send($buffer)
     {
         $this->buffer[] = $buffer;
@@ -116,11 +111,6 @@ class ConnectionTestDouble extends AbstractConnection
         return $this->data;
     }
 
-    /**
-     * Get buffer data.
-     *
-     * @return array
-     */
     public function getBuffer(): array
     {
         return $this->buffer;

@@ -39,6 +39,7 @@ namespace Fabiang\Xmpp;
 use Fabiang\Xmpp\Options;
 use Fabiang\Xmpp\Connection\ConnectionInterface;
 use Fabiang\Xmpp\Connection\Socket;
+use Fabiang\Xmpp\Connection\SocketConnectionInterface;
 use Fabiang\Xmpp\Protocol\ProtocolImplementationInterface;
 use Fabiang\Xmpp\Protocol\Message;
 use Fabiang\Xmpp\Protocol\Presence;
@@ -56,29 +57,16 @@ use Fabiang\Xmpp\EventListener\Logger;
 class Client implements EventManagerAwareInterface
 {
 
-    /**
-     * Eventmanager.
-     *
-     * @var EventManagerInterface
-     */
-    protected $eventManager;
+    protected EventManagerInterface $eventManager;
+
+    protected Options $options;
+
+    protected ConnectionInterface $connection;
 
     /**
-     * Options.
-     *
-     * @var Options
+     * @var array<int,array{from:string,message:string}>
      */
-    protected $options;
-
-    /**
-     * @var ConnectionInterface
-     */
-    protected $connection;
-
-    /**
-     * @var array
-     */
-    protected $messages = [];
+    protected array $messages = [];
 
     /**
      * Constructor.
@@ -92,14 +80,15 @@ class Client implements EventManagerAwareInterface
             $connection = Socket::factory($options);
             $options->setConnection($connection);
         }
+
         $this->options    = $options;
         $this->connection = $connection;
 
         if (null === $eventManager) {
             $eventManager = new EventManager();
         }
-        $this->eventManager = $eventManager;
 
+        $this->eventManager = $eventManager;
         $this->setupImplementation();
     }
 
@@ -108,22 +97,22 @@ class Client implements EventManagerAwareInterface
      *
      * @return void
      */
-    protected function setupImplementation()
+    protected function setupImplementation(): void
     {
         $this->connection->setEventManager($this->eventManager);
         $this->connection->setOptions($this->options);
 
         $inputEventManager = $this->connection->getInputStream()->getEventManager();
-        $inputEventManager->attach('{jabber:client}message', [$this, 'processMessage']);
+        $inputEventManager->attach('{jabber:client}message', $this->processMessage(...));
+
         if ($this->options->getAutoSubscribe()) {
-            $inputEventManager->attach('{jabber:client}presence', [$this, 'processAutoSubscribe']);
+            $inputEventManager->attach('{jabber:client}presence', $this->processAutoSubscribe(...));
         }
 
         $implementation = $this->options->getImplementation();
         $implementation->setEventManager($this->eventManager);
         $implementation->setOptions($this->options);
         $implementation->register();
-
         $implementation->registerListener(new Logger());
     }
 
@@ -132,7 +121,7 @@ class Client implements EventManagerAwareInterface
      *
      * @return void
      */
-    public function connect()
+    public function connect(): void
     {
         $this->connection->connect();
     }
@@ -142,7 +131,7 @@ class Client implements EventManagerAwareInterface
      *
      * @return void
      */
-    public function disconnect()
+    public function disconnect(): void
     {
         $this->connection->disconnect();
     }
@@ -153,7 +142,7 @@ class Client implements EventManagerAwareInterface
      * @param ProtocolImplementationInterface $interface Interface
      * @return void
      */
-    public function send(ProtocolImplementationInterface $interface)
+    public function send(ProtocolImplementationInterface $interface): void
     {
         $data = $interface->toString();
         $this->connection->send($data);
@@ -162,7 +151,7 @@ class Client implements EventManagerAwareInterface
     /**
      * {@inheritDoc}
      */
-    public function getEventManager()
+    public function getEventManager(): EventManagerInterface
     {
         return $this->eventManager;
     }
@@ -197,7 +186,7 @@ class Client implements EventManagerAwareInterface
     /**
      * @internal
      */
-    public function processAutoSubscribe(XMLEventInterface $event)
+    public function processAutoSubscribe(XMLEventInterface $event): void
     {
         if ($event->isStartTag()) {
             $presenceNode = $event->getParameter(0);
@@ -210,7 +199,7 @@ class Client implements EventManagerAwareInterface
     /**
      * @internal
      */
-    public function processMessage(XMLEventInterface $event)
+    public function processMessage(XMLEventInterface $event): void
     {
         if ($event->isStartTag()) {
             $msgNode = $event->getParameter(0);
@@ -232,12 +221,16 @@ class Client implements EventManagerAwareInterface
 
     /**
      * @param boolean $blocking
-     * @return array
+     * @return array<int,array{from:string,message:string}>
      */
     public function getMessages($blocking = false)
     {
         $connection = $this->getConnection();
-        $connection->getSocket()->setBlocking($blocking);
+
+        if ($connection->isConnected() && $connection->isReady() && $connection instanceof SocketConnectionInterface) {
+            $connection->getSocket()->setBlocking($blocking);
+        }
+
         $connection->receive();
         $result = $this->messages;
         $this->messages = [];

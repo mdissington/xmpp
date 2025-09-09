@@ -52,9 +52,8 @@ class Session extends AbstractSessionEvent implements BlockingEventListenerInter
      */
     public function attachEvents()
     {
-        $input = $this->getInputEventManager();
-        $input->attach('{urn:ietf:params:xml:ns:xmpp-session}session', [$this, 'sessionStart']);
-        $input->attach('{jabber:client}iq', [$this, 'iq']);
+        $this->getInputEventManager()->attach('{urn:ietf:params:xml:ns:xmpp-session}session', $this->sessionStart(...));
+        $this->getInputEventManager()->attach('{jabber:client}iq', $this->iq(...));
     }
 
     /**

@@ -119,18 +119,18 @@ class StreamTest extends TestCase
         $this->connection->setReady(false);
 
         $this->assertFalse($this->object->isBlocking());
-        $event->setStartTag(true);
+        $event->setIsStartTag(true);
         $this->object->streamStart($event);
         $this->assertTrue($this->object->isBlocking());
 
-        $event->setStartTag(false);
+        $event->setIsStartTag(false);
         $this->object->streamServer($event);
         $this->assertFalse($this->object->isBlocking());
         $this->assertFalse($this->connection->isConnected());
 
-        $event->setStartTag(true);
+        $event->setIsStartTag(true);
         $this->object->streamStart($event);
-        $event->setStartTag(false);
+        $event->setIsStartTag(false);
         $this->object->features();
         $this->assertFalse($this->object->isBlocking());
         $this->assertTrue($this->connection->isReady());

@@ -45,69 +45,53 @@ use Fabiang\Xmpp\Util\XML;
  */
 class BlockUser implements ProtocolImplementationInterface
 {
-    protected $from;
 
+    protected string $from;
     // the jid of the user to block
-    protected $accountjid;
+    protected string $accountjid;
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function toString()
     {
-        return XML::quoteMessage(
-            '<iq from="%s" type="set" id="%s">
+        return XML::quoteMessage(<<<'XML'
+            <iq from="%s" type="set" id="%s">
                 <block xmlns="urn:xmpp:blocking">
-                  <item jid="%s"/>
+                    <item jid="%s"/>
                 </block>
-            </iq>',
+            </iq>
+            XML,
             $this->getFrom(),
             XML::generateId(),
             $this->getJabberID()
-        );
+            );
     }
 
-    /**
-     * Get JabberID.
-     *
-     * @return string
-     */
-    public function getJabberID()
+    public function getJabberID(): string
     {
         return $this->accountjid;
     }
 
     /**
-     * Set abberID.
-     *
-     * @param string $accountjid
+     * @param string $accountjid The JID of the user to block
      * @return $this
      */
-    public function setJabberID($accountjid)
+    public function setJabberID(string $accountjid): self
     {
-        $this->accountjid = (string) $accountjid;
+        $this->accountjid = $accountjid;
         return $this;
     }
 
-    /**
-     * Get JabberID.
-     *
-     * @return string
-     */
-    public function getFrom()
+    public function getFrom(): string
     {
         return $this->from;
     }
 
     /**
-     * Set abberID.
-     *
-     * @param string $nickname
      * @return $this
      */
-    public function setFrom($from)
+    public function setFrom(string $from): self
     {
-        $this->from = (string) $from;
+        $this->from = $from;
         return $this;
     }
 }

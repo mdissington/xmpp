@@ -38,7 +38,6 @@ namespace Fabiang\Xmpp\Util;
 
 /**
  * XML utility methods.
- *
  * @package Xmpp\Util
  */
 class XML
@@ -46,47 +45,25 @@ class XML
 
     /**
      * Quote XML string.
-     *
-     * @param string $string   String to be quoted
-     * @param string $encoding Encoding used for quotation
-     * @return string
      */
-    public static function quote($string, $encoding = 'UTF-8')
+    public static function quote(?string $string, string $encoding = 'UTF-8'): string
     {
-        $flags = ENT_QUOTES;
-
-        if (defined('ENT_XML1')) {
-            $flags |= ENT_XML1;
-        }
-
-        return htmlspecialchars($string ?: '', $flags, $encoding);
+        return htmlspecialchars($string ?: '', ENT_QUOTES|ENT_XML1, $encoding);
     }
 
     /**
      * Replace variables in a string and quote them before.
      *
      * <b>Hint:</b> this function works like <code>sprintf</code>
-     *
-     * @param string $message
-     * @param mixed  $args
-     * @param mixed  $...
-     * @return string
+	 * @param ?string ...$variables
      */
-    public static function quoteMessage($message)
+    public static function quoteMessage(string $message, ?string ...$variables): string
     {
-        $variables = func_get_args();
-
-        // shift message variable
-        array_shift($variables);
-
-        // workaround for `static` call in a closure
-        $class = __CLASS__;
-
         return vsprintf(
             $message,
             array_map(
-                function ($var) use ($class) {
-                    return $class::quote($var);
+                function ($var) {
+                    return self::quote($var);
                 },
                 $variables
             )
@@ -95,33 +72,24 @@ class XML
 
     /**
      * Generate a unique id.
-     *
-     * @return string
      */
-    public static function generateId()
+    public static function generateId(): string
     {
         return static::quote('fabiang_xmpp_' . uniqid());
     }
 
     /**
      * Encode a string with Base64 and quote it.
-     *
-     * @param string $data
-     * @param string $encoding
-     * @return string
      */
-    public static function base64Encode($data, $encoding = 'UTF-8')
+    public static function base64Encode(string $data, string $encoding = 'UTF-8'): string
     {
         return static::quote(base64_encode($data), $encoding);
     }
 
     /**
      * Decode a Base64 encoded string.
-     *
-     * @param string $data
-     * @return string
      */
-    public static function base64Decode($data)
+    public static function base64Decode(string $data): string
     {
         return base64_decode($data);
     }

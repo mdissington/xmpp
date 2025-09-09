@@ -52,14 +52,13 @@ class Logger extends AbstractEventListener
      * @param \Fabiang\Xmpp\Event\EventInterface $event
      * @return $this
      */
-    public function event(EventInterface $event)
+    public function event(EventInterface $event): self
     {
         $logger = $this->getOptions()->getLogger();
+        list($message, $level) = $event->getParameters();
+        $logger->log($level, $message);
 
-        if (null !== $logger) {
-            list($message, $level) = $event->getParameters();
-            $logger->log($level, $message);
-        }
+        return $this;
     }
 
     /**
@@ -67,8 +66,8 @@ class Logger extends AbstractEventListener
      *
      * @return void
      */
-    public function attachEvents()
+    public function attachEvents(): void
     {
-        $this->getEventManager()->attach('logger', [$this, 'event']);
+        $this->getEventManager()->attach('logger', $this->event(...));
     }
 }

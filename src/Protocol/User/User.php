@@ -44,79 +44,80 @@ namespace Fabiang\Xmpp\Protocol\User;
 class User
 {
 
-    /**
-     *
-     * @var string
-     */
-    protected $name;
+    protected string $name;
+    protected string $jid;
+    protected string $subscription;
 
     /**
-     *
-     * @var string
+     * @var array<string>
      */
-    protected $jid;
+    protected array $groups = [];
 
-    /**
-     *
-     * @var string
-     */
-    protected $subscription;
-
-    /**
-     *
-     * @var array
-     */
-    protected $groups = [];
-
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    public function setName($name = null)
+    /**
+     * @return $this
+     */
+    public function setName(string $name): self
     {
-        if (null === $name || '' === $name) {
-            $this->name = null;
-        } else {
-            $this->name = $name;
-        }
+        $this->name = $name;
+
         return $this;
     }
 
-    public function getJid()
+    public function getJid(): string
     {
         return $this->jid;
     }
 
-    public function setJid($jid)
+    /**
+     * @return $this
+     */
+    public function setJid(string $jid): self
     {
-        $this->jid = (string) $jid;
+        $this->jid = $jid;
         return $this;
     }
 
-    public function getSubscription()
+    public function getSubscription(): string
     {
         return $this->subscription;
     }
 
-    public function setSubscription($subscription)
+    /**
+     * @return $this
+     */
+    public function setSubscription(string $subscription): self
     {
-        $this->subscription = (string) $subscription;
+        $this->subscription = $subscription;
         return $this;
     }
 
-    public function getGroups()
+    /**
+     * @return array<string>
+     */
+    public function getGroups(): array
     {
         return $this->groups;
     }
 
-    public function setGroups(array $groups)
+    /**
+     * @param array<string> $groups
+     * @return $this
+     */
+    public function setGroups(array $groups): self
     {
         $this->groups = $groups;
         return $this;
     }
 
-    public function addGroup($group)
+    /**
+     * @return $this
+     */
+    public function addGroup($group): self
     {
         $this->groups[] = (string) $group;
         return $this;

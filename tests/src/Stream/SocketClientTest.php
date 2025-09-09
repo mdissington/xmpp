@@ -141,6 +141,16 @@ class SocketClientTest extends TestCase
         $this->assertSame('persistent stream', get_resource_type($this->object->getResource()));
         $this->assertSame($this->address, $this->object->getAddress());
         $this->assertNotSame($oldResource, $this->object->getResource());
+
+        fclose($this->server);
+        unlink($this->path);
+        $this->server  = stream_socket_server($this->address);
+        $this->assertIsResource($this->server);
+
+        $this->object->reconnect(null, 0, true);
+        $this->assertSame('persistent stream', get_resource_type($this->object->getResource()));
+        $this->assertSame($this->address, $this->object->getAddress());
+        $this->assertNotSame($oldResource, $this->object->getResource());
     }
 
     /**
@@ -184,8 +194,19 @@ class SocketClientTest extends TestCase
         $conn = stream_socket_accept($this->server);
         $this->object->write('test');
         $this->assertSame('test', fread($conn, 4));
+    }
 
-        $this->object->write('test', 3);
+    /**
+     * @covers ::write
+     * @uses Fabiang\Xmpp\Stream\SocketClient::__construct
+     * @uses Fabiang\Xmpp\Stream\SocketClient::connect
+     * @uses Fabiang\Xmpp\Util\ErrorHandler
+     */
+    public function testWriteWithLengthLimit()
+    {
+        $this->object->connect(0);
+        $conn = stream_socket_accept($this->server);
+        $this->object->write('test', 3); // test lenght-limit works
         $this->assertSame('tes', fread($conn, 4));
     }
 }

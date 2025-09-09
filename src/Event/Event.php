@@ -37,7 +37,6 @@
 namespace Fabiang\Xmpp\Event;
 
 use Fabiang\Xmpp\Exception\OutOfRangeException;
-use Fabiang\Xmpp\Exception\InvalidArgumentException;
 
 /**
  * Generic event.
@@ -47,117 +46,82 @@ use Fabiang\Xmpp\Exception\InvalidArgumentException;
 class Event implements EventInterface
 {
 
-    /**
-     * Event name.
-     *
-     * @var string
-     */
-    protected $name;
+    protected string $name;
+    protected object $target;
+    protected array $parameters = [];
+    protected array $eventStack = [];
 
-    /**
-     * Target object.
-     *
-     * @var object
-     */
-    protected $target;
-
-    /**
-     * Event parameters.
-     *
-     * @var array
-     */
-    protected $parameters = [];
-
-    /**
-     * Event stack.
-     *
-     * @var array
-     */
-    protected $eventStack = [];
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getName()
+    #[\Override]
+    public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getTarget()
+    #[\Override]
+    public function getTarget(): object
     {
         return $this->target;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getParameters()
+    #[\Override]
+    public function getParameters(): array
     {
         return $this->parameters;
     }
 
     /**
-     * {@inheritDoc}
+     * @return $this
      */
-    public function setName($name)
+    #[\Override]
+    public function setName(string $name): self
     {
-        $this->name = (string) $name;
+        $this->name = $name;
         return $this;
     }
 
     /**
-     * {@inheritDoc}
+     * @return $this
      */
-    public function setTarget($target)
+    #[\Override]
+    public function setTarget(object $target): self
     {
         $this->target = $target;
         return $this;
     }
 
     /**
-     * {@inheritDoc}
+     * @return $this
      */
-    public function setParameters(array $parameters)
+    #[\Override]
+    public function setParameters(array $parameters): self
     {
         $this->parameters = array_values($parameters);
         return $this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function getEventStack()
     {
         return $this->eventStack;
     }
 
     /**
-     * {@inheritDoc}
+     * @return $this
      */
-    public function setEventStack(array $eventStack)
+    #[\Override]
+    public function setEventStack(array $eventStack): self
     {
         $this->eventStack = $eventStack;
         return $this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getParameter($index)
+    #[\Override]
+    public function getParameter(int $index)
     {
         $parameters = $this->getParameters();
 
-        if (!is_int($index)) {
-            throw new InvalidArgumentException(
-                'Argument #1 of "' . __CLASS__ . '::' . __METHOD__ . '" must be an integer'
-            );
-        }
-
         if (!array_key_exists($index, $parameters)) {
-            throw new OutOfRangeException("The offset $index is out of range.");
+            throw new OutOfRangeException('The offset '.$index.' is out of range.');
         }
 
         return $parameters[$index];

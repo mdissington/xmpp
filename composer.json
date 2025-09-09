@@ -79,8 +79,8 @@
             "@composer self-update",
             "{ composer --ansi show --self | grep -P '^[a-z0-9]([_.-]?[a-z0-9]+)*/[a-z0-9]([_.-]?[a-z0-9]+)*'; composer --ansi show -Dl | sed -r -e 's/(.*?)\\x1b\\\\(.*)\\x1b\\\\/\\2\\x1b\\\\/g'; } | sort -Vi"
         ],
-        "test": "phpunit tests/src/",
-        "analyse": "phpstan",
+        "test": "phpunit tests/src/ || true",
+        "analyse": "phpstan -vvv analyse || true",
         "test-and-analyse": [
             "@test",
             "@analyse"

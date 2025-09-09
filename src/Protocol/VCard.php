@@ -11,57 +11,27 @@ use Fabiang\Xmpp\Util\XML;
  */
 class VCard implements ProtocolImplementationInterface
 {
+    protected string $firstname;
 
-    /**
-     * vCard to.
-     *
-     * @var string|null
-     */
-    protected $to;
+    protected string $lastname;
 
+    protected string $jabberid;
 
-    /**
-     * user firstname.
-     *
-     * @var string
-     */
-    protected $firstname;
+    protected string $mime = '';
 
-    /**
-     * user lastname.
-     *
-     * @var string
-     */
-    protected $lastname;
+    protected string $image = '';
 
-    protected $jabberid;
+    protected string $url = '';
 
-    protected $mime;
-
-    protected $image;
-
-    protected $ulr;
-
-    /**
-     * Constructor.
-     *
-     * @param integer $priority
-     * @param string $to
-     * @param string $nickname
-     */
-    public function __construct($firstname = null, $lastname = null,  $jabberid = null)
+    public function __construct( string $firstname = '', string $lastname = '', string $jabberid = '' )
     {
         $this->setFirstname($firstname);
         $this->setLastname($lastname);
         $this->setJabberID($jabberid);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function toString()
+    public function toString(): string
     {
-
          return XML::quoteMessage(
             '<iq id="' . XML::generateId() . '" type="set">
               <vCard xmlns="vcard-temp">
@@ -94,135 +64,93 @@ class VCard implements ProtocolImplementationInterface
         );
     }
 
-    /**
-     * Get nickname.
-     *
-     * @return string
-     */
-    public function getFirstname()
+    public function getFirstname(): string
     {
         return $this->firstname;
     }
 
     /**
-     * Set nickname.
-     *
-     * @param string $nickname
      * @return $this
      */
-    public function setFirstname($firstname)
+    public function setFirstname( string $firstname): self
     {
         $this->firstname = (string) $firstname;
+
         return $this;
     }
 
-    /**
-     * Get nickname.
-     *
-     * @return string
-     */
-    public function getLastname()
+    public function getLastname(): string
     {
         return $this->lastname;
     }
 
     /**
-     * Set nickname.
-     *
-     * @param string $nickname
      * @return $this
      */
-    public function setLastname($lastname)
+    public function setLastname( string $lastname): self
     {
         $this->lastname = (string) $lastname;
+
         return $this;
     }
 
-    /**
-     * Get JabberID.
-     *
-     * @return string
-     */
-    public function getJabberID()
+    public function getJabberID(): string
     {
         return $this->jabberid;
     }
 
     /**
-     * Set abberID.
-     *
-     * @param string $nickname
      * @return $this
      */
-    public function setJabberID($jabberid)
+    public function setJabberID(string $jabberid): self
     {
         $this->jabberid = (string) $jabberid;
+
         return $this;
     }
 
-    /**
-     * Get mime.
-     *
-     * @return string
-     */
-    public function getMime()
+    public function getMime(): string
     {
         return $this->mime;
     }
 
     /**
-     * Set mime.
-     *
-     * @param string $mime
      * @return $this
      */
-    public function setMime($mime)
+    public function setMime( string $mime): self
     {
         $this->mime = (string) $mime;
+
         return $this;
     }
 
-    /**
-     * Get image.
-     *
-     * @return string
-     */
-    public function getImage()
+    public function getImage(): string
     {
         return $this->image;
     }
 
     /**
-     * Set image.
-     *
-     * @param string $image base64
      * @return $this
      */
-    public function setImage($image)
+    public function setImage( string $image): self
     {
         $this->image = (string) $image;
+
         return $this;
     }
 
-    /**
-     * Get url.
-     *
-     * @return string
-     */
-    public function getUrl()
+    public function getUrl(): string
     {
         return $this->url;
     }
 
     /**
-     * Set url.
-     *
-     * @param string $image base64
      * @return $this
      */
-    public function setUrl($url)
+    public function setUrl( string $url): self
     {
         $this->url = (string) $url;
+
         return $this;
     }
 }

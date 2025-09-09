@@ -49,48 +49,28 @@ use Fabiang\Xmpp\Protocol\User\User;
 class BlockedUsers extends AbstractEventListener implements BlockingEventListenerInterface
 {
 
-    /**
-     * Blocking.
-     *
-     * @var boolean
-     */
-    protected $blocking = false;
+    protected bool $blocking = false;
+    protected User $userObject;
 
-    /**
-     * user object.
-     *
-     * @var User
-     */
-    protected $userObject;
-
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function attachEvents()
     {
-        $this->getOutputEventManager()
-            ->attach('{urn:xmpp:blocking}blocklist', [$this, 'query']);
-        $this->getInputEventManager()
-            ->attach('{urn:xmpp:blocking}blocklist', [$this, 'result']);
+        $this->getOutputEventManager()->attach('{urn:xmpp:blocking}blocklist', $this->query(...));
+        $this->getInputEventManager()->attach('{urn:xmpp:blocking}blocklist', $this->result(...));
     }
 
     /**
-     * Sending a query request for roster sets listener to blocking mode.
-     *
-     * @return void
+     * Sending a query request for roster sets listener to blocking mode
      */
-    public function query()
+    public function query(): void
     {
         $this->blocking = true;
     }
 
     /**
-     * Result received.
-     *
-     * @param \Fabiang\Xmpp\Event\XMLEvent $event
-     * @return void
+     * Result received
      */
-    public function result(XMLEvent $event)
+    public function result(XMLEvent $event): void
     {
         if ($event->isEndTag()) {
             $users = [];
@@ -98,46 +78,37 @@ class BlockedUsers extends AbstractEventListener implements BlockingEventListene
             /* @var $element \DOMElement */
             $element = $event->getParameter(0);
             $items   = $element->getElementsByTagName('item');
+
             /* @var $item \DOMElement */
             foreach ($items as $item) {
                 $users[] = $item->getAttribute('jid');
             }
-            dd($users);
+
             //$this->getOptions()->setUsers($users);
             $this->blocking = false;
         }
     }
 
-    /**
-     * Get user object.
-     *
-     * @return User
-     */
-    public function getUserObject()
+    public function getUserObject(): User
     {
-        if (null === $this->userObject) {
-            $this->setUserObject(new User);
+        if (!isset($this->userObject)) {
+            $this->setUserObject(new User());
         }
 
         return $this->userObject;
     }
 
     /**
-     * Set user object.
-     *
-     * @param User $userObject
      * @return $this
      */
-    public function setUserObject(User $userObject)
+    public function setUserObject(User $userObject): self
     {
         $this->userObject = $userObject;
         return $this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function isBlocking()
+    #[\Override]
+    public function isBlocking(): bool
     {
         return $this->blocking;
     }

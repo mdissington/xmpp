@@ -45,9 +45,8 @@ interface BlockingEventListenerInterface
 {
 
     /**
-     * Event listener should return false as long he waits for events to finish.
-     *
-     * @return boolean
+     * Event listener should return false as long he waits for events to finish
+     * @return bool
      */
     public function isBlocking();
 }

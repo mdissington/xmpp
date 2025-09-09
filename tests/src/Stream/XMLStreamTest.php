@@ -36,6 +36,7 @@
 
 namespace Fabiang\Xmpp\Stream;
 
+use Fabiang\Xmpp\Event\XMLEventInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -49,6 +50,7 @@ class XMLStreamTest extends TestCase
      * Sets up the fixture, for example, opens a network connection.
      * This method is called before a test is executed.
      */
+    #[\Override]
     protected function setUp(): void
     {
         $this->object = new XMLStream();
@@ -94,28 +96,28 @@ class XMLStreamTest extends TestCase
         );
 
         $xml = '<?xml version=\'1.0\' encoding=\'UTF-8\'?>'
-            . '<stream:stream xmlns:stream="http://etherx.jabber.org/streams" '
-            . 'xmlns="jabber:client" from="gamebox" id="b9a85bbd" xml:lang="en" version="1.0">'
-            . '<stream:features>'
-            . '<test someattribute="test" stream:anothertest="foo"/>'
-            . '<starttls xmlns="urn:ietf:params:xml:ns:xmpp-tls"></starttls>'
-            . '<mechanisms xmlns="urn:ietf:params:xml:ns:xmpp-sasl">'
-            . '<mechanism>DIGEST-MD5</mechanism>'
-            . '<mechanism>PLAIN</mechanism>'
-            . '<mechanism>ANONYMOUS</mechanism>'
-            . '<mechanism>CRAM-MD5</mechanism>'
-            . '</mechanisms>'
-            . '</stream:features>';
+            .'<stream:stream xmlns:stream="http://etherx.jabber.org/streams" '
+            .'xmlns="jabber:client" from="gamebox" id="b9a85bbd" xml:lang="en" version="1.0">'
+            .'<stream:features>'
+            .'<test someattribute="test" stream:anothertest="foo"/>'
+            .'<starttls xmlns="urn:ietf:params:xml:ns:xmpp-tls"></starttls>'
+            .'<mechanisms xmlns="urn:ietf:params:xml:ns:xmpp-sasl">'
+            .'<mechanism>DIGEST-MD5</mechanism>'
+            .'<mechanism>PLAIN</mechanism>'
+            .'<mechanism>ANONYMOUS</mechanism>'
+            .'<mechanism>CRAM-MD5</mechanism>'
+            .'</mechanisms>'
+            .'</stream:features>';
 
-        $expected = '<?xml version="1.0" encoding="UTF-8"?>' . "\n"
-            . '<stream:stream xmlns:stream="http://etherx.jabber.org/streams" xmlns="jabber:client" from="gamebox" '
-            . 'id="b9a85bbd" xml:lang="en" version="1.0"><stream:features>'
-            . '<test someattribute="test" stream:anothertest="foo"/>'
-            . '<starttls '
-            . 'xmlns="urn:ietf:params:xml:ns:xmpp-tls"/><mechanisms xmlns="urn:ietf:params:xml:ns:xmpp-sasl">'
-            . '<mechanism>DIGEST-MD5</mechanism><mechanism>PLAIN</mechanism><mechanism>ANONYMOUS</mechanism>'
-            . '<mechanism>CRAM-MD5</mechanism></mechanisms></stream:features></stream:stream>'
-            . "\n";
+        $expected = '<?xml version="1.0" encoding="UTF-8"?>'."\n"
+            .'<stream:stream xmlns:stream="http://etherx.jabber.org/streams" xmlns="jabber:client" from="gamebox" '
+            .'id="b9a85bbd" xml:lang="en" version="1.0"><stream:features>'
+            .'<test someattribute="test" stream:anothertest="foo"/>'
+            .'<starttls '
+            .'xmlns="urn:ietf:params:xml:ns:xmpp-tls"/><mechanisms xmlns="urn:ietf:params:xml:ns:xmpp-sasl">'
+            .'<mechanism>DIGEST-MD5</mechanism><mechanism>PLAIN</mechanism><mechanism>ANONYMOUS</mechanism>'
+            .'<mechanism>CRAM-MD5</mechanism></mechanisms></stream:features></stream:stream>'
+            ."\n";
 
         $result = $this->object->parse($xml);
         $this->assertInstanceOf('\DOMDocument', $result);
@@ -150,16 +152,16 @@ class XMLStreamTest extends TestCase
 
         $this->object->getEventManager()->attach(
             '{http://etherx.jabber.org/streams}stream',
-            function ($e) use (&$triggered) {
-                if ($e->isEndTag()) {
+            function (XMLEventInterface $event) use (&$triggered) {
+                if ($event->isEndTag()) {
                     $triggered++;
                 }
             }
         );
 
-        $start = '<?xml version="1.0" encoding="UTF-8"?>' . "\n"
-            . '<stream:stream xmlns:stream="http://etherx.jabber.org/streams" '
-            . 'xmlns="jabber:client" from="gamebox" id="b9a85bbd" xml:lang="en" version="1.0">';
+        $start = '<?xml version="1.0" encoding="UTF-8"?>'."\n"
+            .'<stream:stream xmlns:stream="http://etherx.jabber.org/streams" '
+            .'xmlns="jabber:client" from="gamebox" id="b9a85bbd" xml:lang="en" version="1.0">';
 
         $end = '</stream:stream>';
 
@@ -193,16 +195,16 @@ class XMLStreamTest extends TestCase
     public function testParseChallenge()
     {
         $xml = '<?xml version=\'1.0\' encoding=\'UTF-8\'?><stream:stream '
-            . 'xmlns:stream="http://etherx.jabber.org/streams" xmlns="jabber:client" from="gamebox" id="7f3ceab2" '
-            . 'xml:lang="en" version="1.0">';
+            .'xmlns:stream="http://etherx.jabber.org/streams" xmlns="jabber:client" from="gamebox" id="7f3ceab2" '
+            .'xml:lang="en" version="1.0">';
         $this->assertInstanceOf('\DOMDocument', $this->object->parse($xml));
 
         $xml = '<stream:features><starttls xmlns="urn:ietf:params:xml:ns:xmpp-tls"></starttls>'
-            . '<mechanisms xmlns="urn:ietf:params:xml:ns:xmpp-sasl"><mechanism>DIGEST-MD5</mechanism>'
-            . '<mechanism>PLAIN</mechanism><mechanism>ANONYMOUS</mechanism><mechanism>CRAM-MD5</mechanism>'
-            . '</mechanisms><compression xmlns="http://jabber.org/features/compress"><method>zlib</method>'
-            . '</compression><auth xmlns="http://jabber.org/features/iq-auth"/>'
-            . '<register xmlns="http://jabber.org/features/iq-register"/></stream:features>';
+            .'<mechanisms xmlns="urn:ietf:params:xml:ns:xmpp-sasl"><mechanism>DIGEST-MD5</mechanism>'
+            .'<mechanism>PLAIN</mechanism><mechanism>ANONYMOUS</mechanism><mechanism>CRAM-MD5</mechanism>'
+            .'</mechanisms><compression xmlns="http://jabber.org/features/compress"><method>zlib</method>'
+            .'</compression><auth xmlns="http://jabber.org/features/iq-auth"/>'
+            .'<register xmlns="http://jabber.org/features/iq-register"/></stream:features>';
         $this->assertInstanceOf('\DOMDocument', $this->object->parse($xml));
 
         $xml = '<proceed ';
@@ -236,21 +238,23 @@ class XMLStreamTest extends TestCase
     public function testParseNamespaces()
     {
         $events = array();
-        $this->object->getEventManager()->attach('*', function ($e) use (&$events) { $events[] = $e->getName(); });
+        $this->object->getEventManager()->attach('*', function (XMLEventInterface $event) use (&$events) {
+            $events[] = $event->getName();
+        });
 
         $xml = <<<'XML'
-<?xml version="1.0" encoding="UTF-8"?>
-<stream:stream xmlns:stream="http://etherx.jabber.org/streams" xmlns="jabber:client">
-    <stream:features></stream:features>
-    <iq>test</iq>
-    <iq xmlns="jabber:client">testtwo</iq>
-</stream:stream>
-XML;
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <stream:stream xmlns:stream="http://etherx.jabber.org/streams" xmlns="jabber:client">
+                        <stream:features></stream:features>
+                        <iq>test</iq>
+                        <iq xmlns="jabber:client">testtwo</iq>
+                    </stream:stream>
+                    XML;
 
         $this->object->parse($xml);
 
         $this->assertSame(
-            array(
+            [
                 '{http://etherx.jabber.org/streams}stream',
                 '{http://etherx.jabber.org/streams}features',
                 '{http://etherx.jabber.org/streams}features',
@@ -259,7 +263,7 @@ XML;
                 '{jabber:client}iq',
                 '{jabber:client}iq',
                 '{http://etherx.jabber.org/streams}stream',
-            ),
+            ],
             $events
         );
     }
@@ -319,7 +323,7 @@ XML;
 
         $this->object->parse(
             '<stream:stream xmlns:stream="http://etherx.jabber.org/streams"'
-            . ' xmlns="jabber:client" from="gamebox" id="b9a85bbd" xml:lang="en" version="1.0">'
+            .' xmlns="jabber:client" from="gamebox" id="b9a85bbd" xml:lang="en" version="1.0">'
         );
         $this->object->parse('<stream:features></stream:features>');
         $this->object->parse('</stream:stream>');

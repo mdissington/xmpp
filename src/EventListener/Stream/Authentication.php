@@ -56,7 +56,7 @@ class Authentication extends AbstractEventListener implements BlockingEventListe
      *
      * @var boolean
      */
-    protected $blocking = false;
+    protected bool $blocking = false;
 
     /**
      * Collected mechanisms.
@@ -71,14 +71,14 @@ class Authentication extends AbstractEventListener implements BlockingEventListe
     public function attachEvents()
     {
         $input = $this->getConnection()->getInputStream()->getEventManager();
-        $input->attach('{urn:ietf:params:xml:ns:xmpp-sasl}mechanisms', [$this, 'authenticate']);
-        $input->attach('{urn:ietf:params:xml:ns:xmpp-sasl}mechanism', [$this, 'collectMechanisms']);
-        $input->attach('{urn:ietf:params:xml:ns:xmpp-sasl}failure', [$this, 'failure']);
-        $input->attach('{urn:ietf:params:xml:ns:xmpp-sasl}success', [$this, 'success']);
+        $input->attach('{urn:ietf:params:xml:ns:xmpp-sasl}mechanisms', $this->authenticate(...));
+        $input->attach('{urn:ietf:params:xml:ns:xmpp-sasl}mechanism', $this->collectMechanisms(...));
+        $input->attach('{urn:ietf:params:xml:ns:xmpp-sasl}failure', $this->failure(...));
+        $input->attach('{urn:ietf:params:xml:ns:xmpp-sasl}success', $this->success(...));
     }
 
     /**
-     * Collect authentication machanisms.
+     * Collect authentication mechanisms.
      *
      * @param XMLEvent $event
      * @return void
@@ -96,7 +96,7 @@ class Authentication extends AbstractEventListener implements BlockingEventListe
     }
 
     /**
-     * Authenticate after collecting machanisms.
+     * Authenticate after collecting mechanisms.
      *
      * @param XMLEvent $event
      * @return void
@@ -125,9 +125,9 @@ class Authentication extends AbstractEventListener implements BlockingEventListe
      */
     protected function determineMechanismClass()
     {
-        $authenticationClass = null;
-
+        $authenticationClass   = null;
         $authenticationClasses = $this->getOptions()->getAuthenticationClasses();
+
         foreach ($authenticationClasses as $mechanism => $authClass) {
             if (in_array($mechanism, $this->mechanisms)) {
                 $authenticationClass = $authClass;
@@ -136,14 +136,14 @@ class Authentication extends AbstractEventListener implements BlockingEventListe
         }
 
         if (null === $authenticationClass) {
-            throw new RuntimeException('No supported authentication machanism found.');
+            throw new RuntimeException('No supported authentication mechanism found.');
         }
 
         $authentication = new $authenticationClass;
 
         if (!($authentication instanceof AuthenticationInterface)) {
-            $message = 'Authentication class "' . get_class($authentication)
-                . '" is no instanceof  AuthenticationInterface';
+            $message = 'Authentication class "'.get_class($authentication)
+                .'" is no instanceof  AuthenticationInterface';
             throw new RuntimeException($message);
         }
 
@@ -151,12 +151,10 @@ class Authentication extends AbstractEventListener implements BlockingEventListe
     }
 
     /**
-     * Authentication failed.
-     *
-     * @param XMLEvent $event
-     * @throws StreamErrorException
+     * Authentication failed
+     * @throws AuthenticationErrorException
      */
-    public function failure(XMLEvent $event)
+    public function failure(XMLEvent $event): void
     {
         if (false === $event->isStartTag()) {
             $this->blocking = false;
@@ -165,11 +163,9 @@ class Authentication extends AbstractEventListener implements BlockingEventListe
     }
 
     /**
-     * Authentication successful.
-     *
-     * @param XMLEvent $event
+     * Authentication successful
      */
-    public function success(XMLEvent $event)
+    public function success(XMLEvent $event): void
     {
         if (false === $event->isStartTag()) {
             $this->blocking = false;
@@ -182,29 +178,20 @@ class Authentication extends AbstractEventListener implements BlockingEventListe
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function isBlocking()
+    public function isBlocking(): bool
     {
         return $this->blocking;
     }
 
     /**
-     * Get collected mechanisms.
-     *
-     * @return array
+     * Get collected mechanisms
      */
-    public function getMechanisms()
+    public function getMechanisms(): array
     {
         return $this->mechanisms;
     }
 
-    /**
-     *
-     * @return boolean
-     */
-    protected function isAuthenticated()
+    protected function isAuthenticated(): bool
     {
         return $this->getOptions()->isAuthenticated();
     }

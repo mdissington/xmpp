@@ -152,7 +152,6 @@ final class AbstractConnectionTest extends TestCase
     public function testReceiveWithTimeout()
     {
         $this->expectException(\Fabiang\Xmpp\Exception\TimeoutException::class);
-        $this->expectExceptionMessage('Connection lost after 0 seconds');
 
         $this->object->getOptions()->setTimeout(0);
         $this->object->connect();

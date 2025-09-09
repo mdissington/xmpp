@@ -36,12 +36,13 @@
 
 namespace Fabiang\Xmpp\Connection;
 
-use Psr\Log\LogLevel;
+use Fabiang\Xmpp\Exception\SocketException;
+use Fabiang\Xmpp\Exception\TimeoutException;
+use Fabiang\Xmpp\Exception\Stream\StreamErrorException;
 use Fabiang\Xmpp\Stream\SocketClient;
 use Fabiang\Xmpp\Stream\SocksProxy;
-use Fabiang\Xmpp\Util\XML;
 use Fabiang\Xmpp\Options;
-use Fabiang\Xmpp\Exception\TimeoutException;
+use Fabiang\Xmpp\Util\XML;
 
 /**
  * Connection to a socket stream.
@@ -53,113 +54,99 @@ class Socket extends AbstractConnection implements SocketConnectionInterface
 
     const DEFAULT_LENGTH = 4096;
     const STREAM_START   = <<<'XML'
-<?xml version="1.0" encoding="UTF-8"?>
-<stream:stream to="%s" xmlns:stream="http://etherx.jabber.org/streams" xmlns="jabber:client" version="1.0">
-XML;
+                            <?xml version="1.0" encoding="UTF-8"?>
+                            <stream:stream to="%s" xmlns:stream="http://etherx.jabber.org/streams" xmlns="jabber:client" version="1.0">
+                            XML;
     const STREAM_END     = '</stream:stream>';
 
-    /**
-     * Socket.
-     *
-     * @var SocketClient
-     */
-    protected $socket;
+    protected SocketClient $socket;
 
     /**
-     * Did we received any data yet?
-     *
-     * @var bool
+     * Have we received any data yet?
      */
-    private $receivedAnyData = false;
+    private bool $receivedAnyData = false;
 
-    /**
-     * Constructor set default socket instance if no socket was given.
-     *
-     * @param StreamSocket $socket  Socket instance
-     */
     public function __construct(SocketClient $socket)
     {
         $this->setSocket($socket);
     }
 
-    /**
-     * Factory for connection class.
-     *
-     * @param Options $options Options object
-     * @return static
-     */
-    public static function factory(Options $options)
+    public static function factory(Options $options): static
     {
         if ($options->getSocksProxyAddress()) {
             $socket = new SocksProxy($options);
         } else {
-            $socket = new SocketClient($options->getAddress(), $options->getContextOptions());
+            $socket = new SocketClient($options->getAddress() ?? '', $options->getContextOptions());
         }
+
         $object = new static($socket);
         $object->setOptions($options);
         return $object;
     }
 
     /**
-     * {@inheritDoc}
+     * @throws \Fabiang\Xmpp\Exception\ErrorException
+     * @throws \Fabiang\Xmpp\Exception\SocketException
      */
-    public function receive()
+    #[\Override]
+    public function receive(): string
     {
         $buffer = $this->getSocket()->read(static::DEFAULT_LENGTH);
 
         if ($buffer) {
             $this->receivedAnyData = true;
             $address = $this->getAddress();
-            $this->log("Received buffer '$buffer' from '{$address}'", LogLevel::DEBUG);
-            $message = $this->getInputStream()->parse($buffer);
+            $this->log("Received buffer '$buffer' from '{$address}'");
+            $message               = $this->getInputStream()->parse($buffer);
             $this->getEventManager()->trigger('receive', $this, [$message, $buffer]);
         }
 
         try {
             $this->checkTimeout($buffer);
-        } catch (TimeoutException $exception) {
-            $this->reconnectTls($exception);
+        } catch (TimeoutException $e) {
+            $this->reconnectTls();
         }
+
         return $buffer;
     }
 
     /**
-     * Try to reconnect via TLS.
-     *
-     * @return null
+     * Try to reconnect via TLS if connecting via TCP failed
+     * @throws \Fabiang\Xmpp\Exception\ErrorException
      */
-    private function reconnectTls()
+    private function reconnectTls(): void
     {
-        // check if we didn't receive any data
-        // if not we re-try to connect via TLS
-        if (false === $this->receivedAnyData) {
-            $matches = [];
+        // check if we've received any data, if not, we retry to connect via TLS
+        if ($this->receivedAnyData === false) {
+            $matches         = [];
             $previousAddress = $this->getOptions()->getAddress();
+
             // only reconnect via tls if we've used tcp before.
             if (preg_match('#tcp://(?<address>.+)#', $previousAddress, $matches)) {
                 $this->log('Connecting via TCP failed, now trying to connect via TLS');
 
-                $address = 'tls://' . $matches['address'];
+                $address         = 'tls://'.$matches['address'];
                 $this->connected = false;
                 $this->getOptions()->setAddress($address);
                 $this->getSocket()->reconnect($address);
                 $this->connect();
-                return;
             }
         }
     }
 
     /**
-     * {@inheritDoc}
+     * @throws \Fabiang\Xmpp\Exception\ErrorException
+     * @throws \Fabiang\Xmpp\Exception\SocketException
      */
-    public function send($buffer)
+    #[\Override]
+    public function send($buffer): void
     {
         if (false === $this->isConnected()) {
             $this->connect();
         }
 
         $address = $this->getAddress();
-        $this->log("Sending data '$buffer' to '{$address}'", LogLevel::DEBUG);
+        $this->log("Sending data '$buffer' to '{$address}'");
         $this->getSocket()->write($buffer);
         $message = $this->getOutputStream()->parse($buffer);
         $this->getEventManager()->trigger('send', $this, [$message, $buffer]);
@@ -170,60 +157,51 @@ XML;
     }
 
     /**
-     * {@inheritDoc}
+     * @throws \Fabiang\Xmpp\Exception\ErrorException
      */
-    public function connect()
+    #[\Override]
+    public function connect(): void
     {
         if (false === $this->connected) {
-            $address = $this->getAddress();
+            $address         = $this->getAddress();
+            $this->log(sprintf('Connecting to "%s" timeout: (%d)...', $address, $this->getOptions()->getTimeout()));
             $this->getSocket()->connect($this->getOptions()->getTimeout());
             $this->getSocket()->setBlocking(true);
-
             $this->connected = true;
-            $this->log("Connected to '{$address}'", LogLevel::DEBUG);
+            $this->log(sprintf('Connected to "%s"', $address));
         }
 
         $this->send(sprintf(static::STREAM_START, XML::quote($this->getOptions()->getTo())));
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function disconnect()
+    #[\Override]
+    public function disconnect(): void
     {
         if (true === $this->connected) {
             $address         = $this->getAddress();
             $this->send(static::STREAM_END);
             $this->getSocket()->close();
             $this->connected = false;
-            $this->log("Disconnected from '{$address}'", LogLevel::DEBUG);
+            $this->log(sprintf('Disconnected from "%s"', $address));
         }
     }
 
     /**
-     * Get address from options object.
-     *
-     * @return string
+     * Get address from options object
      */
-    protected function getAddress()
+    protected function getAddress(): ?string
     {
         return $this->getOptions()->getAddress();
     }
 
-    /**
-     * Return socket instance.
-     *
-     * @return SocketClient
-     */
-    public function getSocket()
+    #[\Override]
+    public function getSocket(): SocketClient
     {
         return $this->socket;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function setSocket(SocketClient $socket)
+    #[\Override]
+    public function setSocket(SocketClient $socket): self
     {
         $this->socket = $socket;
         return $this;

@@ -54,23 +54,21 @@ class XMLStream implements EventManagerAwareInterface
     const NAMESPACE_SEPARATOR = ':';
 
     /**
-     * Eventmanager.
-     *
-     * @var EventManagerInterface
+     * Event manager
      */
-    protected $events;
+    protected ?EventManagerInterface $events;
 
     /**
      * Document encoding.
      *
      * @var string
      */
-    protected $encoding;
+    protected string $encoding;
 
     /**
      * Current parsing depth.
      *
-     * @var integer
+     * @var int
      */
     protected $depth = 0;
 
@@ -95,54 +93,34 @@ class XMLStream implements EventManagerAwareInterface
     protected $namespacePrefixes = [];
 
     /**
-     * Element cache.
-     *
+     * Element cache
      * @var array
      */
     protected $elements = [];
-
-    /**
-     * XML parser.
-     *
-     * @var resource|\XMLParser
-     */
-    protected $parser;
+    protected \XMLParser $parser;
 
     /**
      * Event object.
      *
      * @var XMLEventInterface
      */
-    protected $eventObject;
+    protected XMLEventInterface $eventObject;
 
     /**
      * Collected events while parsing.
-     *
-     * @var array
      */
-    protected $eventCache = [];
+    protected array $eventCache = [];
 
-    /**
-     * Constructor.
-     */
-    public function __construct($encoding = 'UTF-8', ?XMLEventInterface $eventObject = null)
+    public function __construct(string $encoding = 'UTF-8', ?XMLEventInterface $eventObject = null)
     {
         $this->encoding = $encoding;
         $this->reset();
 
-        if (null === $eventObject) {
+        if (!isset($eventObject)) {
             $eventObject = new XMLEvent();
         }
 
         $this->eventObject = $eventObject;
-    }
-
-    /**
-     * Free XML parser on desturct.
-     */
-    public function __destruct()
-    {
-        xml_parser_free($this->parser);
     }
 
     /**
@@ -201,37 +179,33 @@ class XMLStream implements EventManagerAwareInterface
     }
 
     /**
-     * Starting tag found.
-     *
-     * @param resource $parser  XML parser
-     * @param string   $name    Element name
-     * @param attribs  $attribs Element attributes
-     * @return void
+     * Start element handler
+     * @param string $name Element name
+     * @param array $attributes Element attributes
      */
-    protected function startXml()
+    protected function startXml(\XMLParser $parser, string $name, array $attributes): void
     {
-        list (, $name, $attribs) = func_get_args();
-
         $elementData = explode(static::NAMESPACE_SEPARATOR, $name, 2);
         $elementName = $elementData[0];
         $prefix      = null;
+
         if (isset($elementData[1])) {
             $elementName = $elementData[1];
             $prefix      = $elementData[0];
         }
 
-        $attributes = $this->filterNsAttributes($attribs);
+        $attributes      = $this->filterNsAttributes($attributes);
         $namespaceAttrib = false;
 
         // current namespace
-        if (array_key_exists('xmlns', $attribs)) {
-            $namespaceURI = $attribs['xmlns'];
+        if (array_key_exists('xmlns', $attributes)) {
+            $namespaceURI = $attributes['xmlns'];
         } else {
             $namespaceURI = $this->namespaces[$this->depth - 1];
         }
 
         // namespace of the element
-        if (null !== $prefix) {
+        if (isset($prefix)) {
             $namespaceElement = $this->namespacePrefixes[$prefix];
         } else {
             $namespaceAttrib  = true;
@@ -241,15 +215,12 @@ class XMLStream implements EventManagerAwareInterface
         $this->namespaces[$this->depth] = $namespaceURI;
 
         // workaround for multiple xmlns defined, since we did have parent element inserted into the dom tree yet
-        if (true === $namespaceAttrib) {
+        if ($namespaceAttrib === true) {
             $element = $this->document->createElement($elementName);
         } else {
             $elementNameFull = $elementName;
-            if (null !== $prefix) {
-                $elementNameFull = $prefix . static::NAMESPACE_SEPARATOR . $elementName;
-            }
-
-            $element = $this->document->createElementNS($namespaceElement, $elementNameFull);
+            $elementNameFull = $prefix.static::NAMESPACE_SEPARATOR.$elementName;
+            $element         = $this->document->createElementNS($namespaceElement, $elementNameFull);
         }
 
         foreach ($attributes as $name => $value) {
@@ -258,8 +229,7 @@ class XMLStream implements EventManagerAwareInterface
 
         $this->elements[$this->depth] = $element;
         $this->depth++;
-
-        $event = '{' . $namespaceElement . '}' . $elementName;
+        $event                        = '{'.$namespaceElement.'}'.$elementName;
         $this->cacheEvent($event, true, [$element]);
     }
 
@@ -286,14 +256,12 @@ class XMLStream implements EventManagerAwareInterface
     }
 
     /**
-     * End tag found.
-     *
-     * @return void
+     * End element handler
+     * @param string $name Element name
      */
-    protected function endXml()
+    protected function endXml(\XMLParser $parser, string $name): void
     {
         $this->depth--;
-
         $element = $this->elements[$this->depth];
 
         if ($this->depth > 0) {
@@ -301,32 +269,26 @@ class XMLStream implements EventManagerAwareInterface
         } else {
             $parent = $this->document;
         }
+
         $parent->appendChild($element);
-
-        $localName = $element->localName;
-
+        $localName    = $element->localName;
         // Frist: try to get the namespace from element.
         $namespaceURI = $element->namespaceURI;
 
         // Second: loop over namespaces till namespace is not null
-        if (null === $namespaceURI) {
+        if (!isset($namespaceURI)) {
             $namespaceURI = $this->namespaces[$this->depth];
         }
 
-        $event = '{' . $namespaceURI . '}' . $localName;
+        $event = '{'.$namespaceURI.'}'.$localName;
         $this->cacheEvent($event, false, [$element]);
     }
 
     /**
-     * Data found.
-     *
-     * @param resource $parser XML parser
-     * @param string   $data   Element data
-     * @return void
+     * Character data handler
      */
-    protected function dataXml()
+    protected function dataXml(\XMLParser $parser, string $data): void
     {
-        $data = func_get_arg(1);
         if (isset($this->elements[$this->depth - 1])) {
             $element = $this->elements[$this->depth - 1];
             $element->appendChild($this->document->createTextNode($data));
@@ -355,7 +317,7 @@ class XMLStream implements EventManagerAwareInterface
     {
         foreach ($this->eventCache as $event) {
             list($event, $startTag, $param) = $event;
-            $this->eventObject->setStartTag($startTag);
+            $this->eventObject->setIsStartTag($startTag);
             $this->getEventManager()->setEventObject($this->eventObject);
             $this->getEventManager()->trigger($event, $this, $param);
         }
@@ -373,8 +335,8 @@ class XMLStream implements EventManagerAwareInterface
         xml_parser_set_option($parser, XML_OPTION_CASE_FOLDING, 0);
         xml_parser_set_option($parser, XML_OPTION_SKIP_WHITE, 1);
 
-        xml_set_element_handler($parser, [$this, 'startXml'], [$this, 'endXml']);
-        xml_set_character_data_handler($parser, [$this, 'dataXml']);
+        xml_set_element_handler($parser, $this->startXml(...), $this->endXml(...));
+        xml_set_character_data_handler($parser, $this->dataXml(...));
 
         $this->parser            = $parser;
         $this->depth             = 0;
@@ -385,30 +347,24 @@ class XMLStream implements EventManagerAwareInterface
     }
 
     /**
-     * Get XML parser resource.
-     *
-     * @return resource
+     * @codeCoverageIgnore
      */
-    public function getParser()
+    public function getParser(): \XMLParser
     {
         return $this->parser;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function getEventManager()
     {
-        if (null === $this->events) {
+        if (!isset($this->events)) {
             $this->setEventManager(new EventManager());
         }
 
         return $this->events;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function setEventManager(EventManagerInterface $events)
     {
         $this->events = $events;
@@ -417,20 +373,16 @@ class XMLStream implements EventManagerAwareInterface
     }
 
     /**
-     * Get event object.
-     *
-     * @return XMLEventInterface
+     * @codeCoverageIgnore
      */
-    public function getEventObject()
+    public function getEventObject(): XMLEventInterface
     {
         return $this->eventObject;
     }
 
     /**
-     * Set event object.
-     *
-     * @param XMLEventInterface $eventObject
      * @return $this
+     * @codeCoverageIgnore
      */
     public function setEventObject(XMLEventInterface $eventObject)
     {

@@ -50,6 +50,7 @@ class ErrorHandlerTest extends TestCase
      * Sets up the fixture, for example, opens a network connection.
      * This method is called before a test is executed.
      */
+    #[\Override]
     protected function setUp(): void
     {
         $this->object = new ErrorHandler(
@@ -86,7 +87,7 @@ class ErrorHandlerTest extends TestCase
      */
     public function testExecuteSuccess()
     {
-        $object = new ErrorHandler('trim', ' test');
-        $this->assertSame('test', $object->execute('0', 1));
+        $object = new ErrorHandler(trim(...), ' test');
+        $this->assertSame('test', $object->execute(__FILE__, __LINE__));
     }
 }

@@ -45,33 +45,28 @@ class XMLEvent extends Event implements XMLEventInterface
 {
 
     /**
-     * Is start tag event.
-     *
-     * @var boolean
+     * Is a start tag event?
      */
-    protected $startTag = false;
+    protected bool $isStartTag = false;
 
-    /**
-     * {@inheritDoc}
-     */
-    public function isStartTag()
+    #[\Override]
+    public function isStartTag(): bool
     {
-        return $this->startTag;
+        return $this->isStartTag;
     }
 
     /**
-     * {@inheritDoc}
+     * @return $this
      */
-    public function setStartTag($startTag)
+    #[\Override]
+    public function setIsStartTag(bool $startTag): self
     {
-        $this->startTag = (bool) $startTag;
+        $this->isStartTag = $startTag;
         return $this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function isEndTag()
+    #[\Override]
+    public function isEndTag(): bool
     {
         return !$this->isStartTag();
     }
