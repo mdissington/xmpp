@@ -96,7 +96,7 @@ class Socket extends AbstractConnection implements SocketConnectionInterface
         if ($buffer) {
             $this->receivedAnyData = true;
             $address = $this->getAddress();
-            $this->log("Received buffer '$buffer' from '{$address}'", LogLevel::DEBUG);
+            $this->log("Received buffer '$buffer' from '{$address}'");
             $message               = $this->getInputStream()->parse($buffer);
             $this->getEventManager()->trigger('receive', $this, [$message, $buffer]);
         }
@@ -146,7 +146,7 @@ class Socket extends AbstractConnection implements SocketConnectionInterface
         }
 
         $address = $this->getAddress();
-        $this->log("Sending data '$buffer' to '{$address}'", LogLevel::DEBUG);
+        $this->log("Sending data '$buffer' to '{$address}'");
         $this->getSocket()->write($buffer);
         $message = $this->getOutputStream()->parse($buffer);
         $this->getEventManager()->trigger('send', $this, [$message, $buffer]);

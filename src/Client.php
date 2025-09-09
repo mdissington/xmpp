@@ -221,8 +221,7 @@ class Client implements EventManagerAwareInterface
 
     /**
      * @param boolean $blocking
-     * return array<int,array{from:string,message:string}>
-     * @return array{from:string,message:string}[]
+     * @return array<int,array{from:string,message:string}>
      */
     public function getMessages($blocking = false)
     {
