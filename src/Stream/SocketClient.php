@@ -137,21 +137,41 @@ class SocketClient
 
     /**
      * @param int $length Count of bytes to read
+     * @throws SocketException
      */
-    public function read(int $length = self::BUFFER_LENGTH): string|false
+    public function read(int $length = self::BUFFER_LENGTH): string
     {
-        return fread($this->resource, $length);
+        try {
+            $handler = new ErrorHandler(fread(...), $this->resource, $length);
+            $data    = $handler->execute(__FILE__, __LINE__);
+
+            if ($data === false) {
+                throw new SocketException('Socket read failure');
+            }
+
+            return $data;
+        } catch (ErrorException $e) {
+            throw new SocketException('Socket write failure', __LINE__, $e);
+        }
     }
 
     /**
      * @param int $length Limit of bytes to write
+     * @throws SocketException
      */
-    public function write(string $string, int $length = null): void
+    public function write(string $string, int $length = null): int
     {
-        if (null !== $length) {
-            fwrite($this->resource, $string, $length);
-        } else {
-            fwrite($this->resource, $string);
+        try {
+            $handler = new ErrorHandler(fwrite(...), $this->resource, $string, $length);
+            $result  = $handler->execute(__FILE__, __LINE__);
+
+            if ($result === false) {
+                throw new SocketException('Socket write failure');
+            }
+
+            return $result;
+        } catch (ErrorException $e) {
+            throw new SocketException('Socket write failure', __LINE__, $e);
         }
     }
 

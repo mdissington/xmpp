@@ -91,18 +91,29 @@ class Socket extends AbstractConnection implements SocketConnectionInterface
     #[\Override]
     public function receive(): string
     {
-        $buffer = $this->getSocket()->read(static::DEFAULT_LENGTH);
-
-        if ($buffer) {
-            $this->receivedAnyData = true;
-            $address = $this->getAddress();
-            $this->log("Received buffer '$buffer' from '{$address}'");
-            $message               = $this->getInputStream()->parse($buffer);
-            $this->getEventManager()->trigger('receive', $this, [$message, $buffer]);
-        }
-
         try {
+            if (false === $this->isConnected()) {
+                $this->connect();
+            }
+
+            $buffer = $this->getSocket()->read(static::DEFAULT_LENGTH);
+
+            if ($buffer) {
+                $this->lastResponse    = time();
+                $this->receivedAnyData = true;
+                $message               = $this->getInputStream()->parse($buffer);
+                $this->getEventManager()->trigger('receive', $this, [$message, $buffer]);
+            }
+
             $this->checkTimeout($buffer);
+        } catch (StreamErrorException | SocketException $e) {
+            //$this->disconnect(); // don't call disconnect as it tries to do a "clean shutdown" and close the stream - but we've already lost the connection...
+            $this->setReady(false);
+            $this->getSocket()->close();
+            $this->connected = false;
+            $this->getOptions()->setAuthenticated(false);
+
+            throw new \Fabiang\Xmpp\Exception\SocketException('receive failed: stream error', 0, $e);
         } catch (TimeoutException $e) {
             $this->reconnectTls();
         }
@@ -141,18 +152,27 @@ class Socket extends AbstractConnection implements SocketConnectionInterface
     #[\Override]
     public function send($buffer): void
     {
-        if (false === $this->isConnected()) {
-            $this->connect();
-        }
+        try {
+            if (false === $this->isConnected()) {
+                $this->connect();
+            }
 
-        $address = $this->getAddress();
-        $this->log("Sending data '$buffer' to '{$address}'");
-        $this->getSocket()->write($buffer);
-        $message = $this->getOutputStream()->parse($buffer);
-        $this->getEventManager()->trigger('send', $this, [$message, $buffer]);
+            $this->getSocket()->write($buffer);
+            $message = $this->getOutputStream()->parse($buffer);
+            $this->getEventManager()->trigger('send', $this, [$message, $buffer]);
 
-        while ($this->checkBlockingListeners()) {
-            $this->receive();
+            while ($this->checkBlockingListeners()) {
+                $receive_buffer = $this->receive();
+                $this->log(sprintf('checkBlockingListeners()... - $this->receive() $receive_buffer: "%s"', $receive_buffer));
+            }
+        } catch (StreamErrorException | SocketException $e) {
+            //$this->disconnect(); // don't call disconnect as it tries to do a "clean shutdown" and close the stream - but we've already lost the connection...
+            $this->setReady(false);
+            $this->getSocket()->close();
+            $this->connected = false;
+            $this->getOptions()->setAuthenticated(false);
+
+            throw new \Fabiang\Xmpp\Exception\SocketException('send failed: stream error', 0, $e);
         }
     }
 

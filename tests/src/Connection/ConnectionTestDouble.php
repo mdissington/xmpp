@@ -77,6 +77,7 @@ class ConnectionTestDouble extends AbstractConnection
         $buffer = null;
 
         if (!empty($this->data)) {
+            $this->lastResponse = time();
             $buffer = array_shift($this->data);
             $this->getInputStream()->parse($buffer);
         }
