@@ -54,7 +54,7 @@ class SocketClient
     /**
      * @var ?resource
      */
-    protected $resource = null;
+    protected $resource        = null;
     protected ?string $address = null;
 
     /**
@@ -101,7 +101,7 @@ class SocketClient
             $this->options
         );
 
-        $resource = $handler->execute(__FILE__, __LINE__);
+        $resource       = $handler->execute(__FILE__, __LINE__);
         stream_set_timeout($resource, $timeout);
         $this->resource = $resource;
     }
@@ -122,7 +122,9 @@ class SocketClient
 
     public function close(): void
     {
-        fclose($this->resource);
+        if (is_resource($this->resource)) {
+            fclose($this->resource);
+        }
     }
 
     /**
@@ -131,8 +133,18 @@ class SocketClient
      */
     public function setBlocking(bool $flag = true): self
     {
-        stream_set_blocking($this->resource, $flag);
-        return $this;
+        try {
+            $handler = new ErrorHandler(stream_set_blocking(...), $this->resource, $flag);
+            $result  = $handler->execute(__FILE__, __LINE__);
+
+            if ($result === false) {
+                throw new SocketException('\stream_set_blocking() returned FALSE');
+            }
+
+            return $this;
+        } catch (ErrorException $e) {
+            throw new SocketException('Failed to set stream blocking mode = '.($flag ? 'true' : 'false').' on socket: '.$e->getMessage(), __LINE__, $e);
+        }
     }
 
     /**
@@ -151,7 +163,7 @@ class SocketClient
 
             return $data;
         } catch (ErrorException $e) {
-            throw new SocketException('Socket write failure', __LINE__, $e);
+            throw new SocketException('Socket read failure: '.$e->getMessage(), __LINE__, $e);
         }
     }
 
@@ -171,28 +183,35 @@ class SocketClient
 
             return $result;
         } catch (ErrorException $e) {
-            throw new SocketException('Socket write failure', __LINE__, $e);
+            throw new SocketException('Socket write failure: '.$e->getMessage(), __LINE__, $e);
         }
     }
 
     /**
      * Enable/disable cryptography on stream
      * @param int $cryptoType One of the STREAM_CRYPTO_METHOD_* constants
-     * @throws ErrorException
+     * @throws SocketException
      * @throws InvalidArgumentException
      */
     public function crypto(bool $enable, ?int $cryptoType = null): int|bool
     {
-        if (false === $enable) {
-            $handler = new ErrorHandler(stream_socket_enable_crypto(...), $this->resource, false);
-            return $handler->execute(__FILE__, __LINE__);
-        }
+        try {
+            if (false === $enable) {
+                $handler = new ErrorHandler(stream_socket_enable_crypto(...), $this->resource, false);
+                return $handler->execute(__FILE__, __LINE__);
+            }
 
-        if (null === $cryptoType) {
-            throw new InvalidArgumentException('Argument #2 $cryptoType of '.__CLASS__.'::'.__METHOD__.'() is required when enabling encryption on a stream');
-        }
+            if (null === $cryptoType) {
+                throw new InvalidArgumentException('Argument #2 $cryptoType of '.__CLASS__.'::'.__METHOD__.'() is required when enabling encryption on a stream');
+            }
 
-        return stream_socket_enable_crypto($this->resource, $enable, $cryptoType);
+            $handler = new ErrorHandler(stream_socket_enable_crypto(...), $this->resource, $enable, $cryptoType);
+            $result  = $handler->execute(__FILE__, __LINE__);
+
+            return $result;
+        } catch (ErrorException $e) {
+            throw new SocketException('Failed to set up TLS on socket: '.$e->getMessage(), __LINE__, $e);
+        }
     }
 
     /**

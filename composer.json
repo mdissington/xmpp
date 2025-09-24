@@ -41,12 +41,12 @@
         "psr/log": "^2.0 || ^3.0"
     },
     "require-dev": {
-        "behat/behat": "^3.22",
+        "behat/behat": "^3.23",
         "monolog/monolog": "^3.9",
-        "phpstan/phpstan": "^2.1.16",
-        "phpstan/phpstan-strict-rules": "^2.0.4",
-        "phpunit/php-code-coverage": "^12.2.1",
-        "phpunit/phpunit": "^12.1.5"
+        "phpstan/phpstan": "^2.1.23",
+        "phpstan/phpstan-strict-rules": "^2.0.6",
+        "phpunit/php-code-coverage": "^12.3.7",
+        "phpunit/phpunit": "^12.3.9"
     },
     "suggest": {
         "psr/log-implementation": "Allows more advanced logging of the XMPP connection"
