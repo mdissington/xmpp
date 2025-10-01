@@ -106,7 +106,7 @@ class EventManager implements EventManagerInterface
         do {
             $current = array_shift($callbacks);
 
-            call_user_func($current, $eventObject);
+            $current($eventObject);
 
             $previous[]  = $current;
             $eventObject = clone $eventObject;

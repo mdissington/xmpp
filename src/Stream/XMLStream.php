@@ -128,6 +128,7 @@ class XMLStream implements EventManagerAwareInterface
      *
      * @param string $source XML source
      * @return \DOMDocument
+     * @throws XMLParserException
      */
     public function parse($source)
     {

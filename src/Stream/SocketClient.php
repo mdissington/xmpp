@@ -138,7 +138,7 @@ class SocketClient
             $result  = $handler->execute(__FILE__, __LINE__);
 
             if ($result === false) {
-                throw new SocketException('\stream_set_blocking() returned FALSE');
+                throw new SocketException('\stream_set_blocking() returned FALSE', __LINE__);
             }
 
             return $this;
@@ -158,7 +158,7 @@ class SocketClient
             $data    = $handler->execute(__FILE__, __LINE__);
 
             if ($data === false) {
-                throw new SocketException('Socket read failure');
+                throw new SocketException('Socket read failure', __LINE__);
             }
 
             return $data;
@@ -178,7 +178,7 @@ class SocketClient
             $result  = $handler->execute(__FILE__, __LINE__);
 
             if ($result === false) {
-                throw new SocketException('Socket write failure');
+                throw new SocketException('Socket write failure', __LINE__);
             }
 
             return $result;
@@ -202,7 +202,7 @@ class SocketClient
             }
 
             if (null === $cryptoType) {
-                throw new InvalidArgumentException('Argument #2 $cryptoType of '.__CLASS__.'::'.__METHOD__.'() is required when enabling encryption on a stream');
+                throw new InvalidArgumentException('Argument #2 $cryptoType of '.__CLASS__.'::'.__METHOD__.'() is required when enabling encryption on a stream', __LINE__);
             }
 
             $handler = new ErrorHandler(stream_socket_enable_crypto(...), $this->resource, $enable, $cryptoType);

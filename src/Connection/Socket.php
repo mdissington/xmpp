@@ -81,16 +81,21 @@ class Socket extends AbstractConnection implements SocketConnectionInterface
 
         $object = new static($socket);
         $object->setOptions($options);
+
         return $object;
     }
 
     /**
+     * @throws SocketException
+     * @throws StreamErrorException
      * @throws \Fabiang\Xmpp\Exception\ErrorException
-     * @throws \Fabiang\Xmpp\Exception\SocketException
+     * @throws \Fabiang\Xmpp\Exception\XMLParserException
      */
     #[\Override]
     public function receive(): string
     {
+        $buffer = '';
+
         try {
             if (false === $this->isConnected()) {
                 $this->connect();
@@ -107,13 +112,15 @@ class Socket extends AbstractConnection implements SocketConnectionInterface
 
             $this->checkTimeout($buffer);
         } catch (StreamErrorException | SocketException $e) {
-            //$this->disconnect(); // don't call disconnect as it tries to do a "clean shutdown" and close the stream - but we've already lost the connection...
-            $this->setReady(false);
-            $this->getSocket()->close();
-            $this->connected = false;
-            $this->getOptions()->setAuthenticated(false);
+            if ($this->connected) {
+                //$this->disconnect(); // don't call disconnect as it tries to do a "clean shutdown" and send a "</stream>" to close the stream - but we've already lost the connection...
+                $this->setReady(false);
+                $this->connected = false;
+                $this->getOptions()->setAuthenticated(false);
+                $this->getSocket()->close();
+            }
 
-            throw new \Fabiang\Xmpp\Exception\SocketException($e->getMessage(), 0, $e);
+            throw $e;
         } catch (TimeoutException $e) {
             $this->reconnectTls();
         }
@@ -146,8 +153,10 @@ class Socket extends AbstractConnection implements SocketConnectionInterface
     }
 
     /**
+     * @throws SocketException
+     * @throws StreamErrorException
      * @throws \Fabiang\Xmpp\Exception\ErrorException
-     * @throws \Fabiang\Xmpp\Exception\SocketException
+     * @throws \Fabiang\Xmpp\Exception\XMLParserException
      */
     #[\Override]
     public function send($buffer): void
@@ -168,13 +177,15 @@ class Socket extends AbstractConnection implements SocketConnectionInterface
 
             $this->log(sprintf('checkBlockingListeners()... - $this->receive() $receive_buffer: "%s"', $receive_buffer));
         } catch (StreamErrorException | SocketException $e) {
-            //$this->disconnect(); // don't call disconnect as it tries to do a "clean shutdown" and close the stream - but we've already lost the connection...
-            $this->setReady(false);
-            $this->connected = false;
-            $this->getOptions()->setAuthenticated(false);
-            $this->getSocket()->close();
+            if ($this->connected) {
+                //$this->disconnect(); // don't call disconnect as it tries to do a "clean shutdown" and send a "</stream>" to close the stream - but we've already lost the connection...
+                $this->setReady(false);
+                $this->connected = false;
+                $this->getOptions()->setAuthenticated(false);
+                $this->getSocket()->close();
+            }
 
-            throw new \Fabiang\Xmpp\Exception\SocketException($e->getMessage(), 0, $e);
+            throw $e;
         }
     }
 

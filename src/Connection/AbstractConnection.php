@@ -43,7 +43,6 @@ use Fabiang\Xmpp\EventListener\EventListenerInterface;
 use Fabiang\Xmpp\Exception\TimeoutException;
 use Fabiang\Xmpp\Options;
 use Fabiang\Xmpp\Stream\XMLStream;
-use Fabiang\Xmpp\Util\ErrorHandler;
 use Psr\Log\LogLevel;
 
 /**
@@ -262,7 +261,7 @@ abstract class AbstractConnection implements ConnectionInterface
         $timeout = $this->getOptions()->getTimeout();
 
         if (time() >= $this->lastResponse + $timeout) {
-            throw new TimeoutException(sprintf('Connection timed out after (%d) seconds', (time() - $this->lastResponse)));
+            throw new TimeoutException(sprintf('Connection timed out after (%d) seconds', (time() - $this->lastResponse)), __LINE__);
         }
     }
 }
