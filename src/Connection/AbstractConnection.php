@@ -230,7 +230,7 @@ abstract class AbstractConnection implements ConnectionInterface
             if ($listener instanceof BlockingEventListenerInterface && $listener->isBlocking() === true) {
                 // cache the last blocking listener. Reducing output.
                 if ($this->lastBlockingListener !== $listener) {
-                    $this->log('Listener '.get_class($listener).' is currently blocking');
+                    //$this->log('Listener '.get_class($listener).' is currently blocking');
                     $this->lastBlockingListener = $listener;
                 }
 

@@ -108,6 +108,7 @@ class Socket extends AbstractConnection implements SocketConnectionInterface
                 $this->receivedAnyData = true;
                 $message               = $this->getInputStream()->parse($buffer);
                 $this->getEventManager()->trigger('receive', $this, [$message, $buffer]);
+                $this->log(sprintf('read buffer: "%s"', $buffer));
             }
 
             $this->checkTimeout($buffer);
@@ -174,8 +175,6 @@ class Socket extends AbstractConnection implements SocketConnectionInterface
             while ($this->checkBlockingListeners()) {
                 $receive_buffer = $this->receive();
             }
-
-            $this->log(sprintf('checkBlockingListeners()... - $this->receive() $receive_buffer: "%s"', $receive_buffer));
         } catch (StreamErrorException | SocketException $e) {
             if ($this->connected) {
                 //$this->disconnect(); // don't call disconnect as it tries to do a "clean shutdown" and send a "</stream>" to close the stream - but we've already lost the connection...
